@@ -11,7 +11,7 @@ class ChatManager:
         self.active_users = []
         self.active_conversations = []
 
-    def login_user(self, user_name, password):
+    def login_user(self, user_name, password, public_key):
         """
         Logs in a user.
         :param user_name: the user name of the user.

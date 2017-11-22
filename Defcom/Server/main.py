@@ -86,7 +86,8 @@ class LoginHandler(JsonHandler):
         """
         user_name = self.request.arguments['user_name']
         password = self.request.arguments['password']
-        current_user = cm.login_user(user_name, password)
+        public_key = self.request.arguments['public_key']
+        current_user = cm.login_user(user_name, password, public_key)
 
         if current_user:
             if not self.get_secure_cookie(Constants.COOKIE_NAME):
