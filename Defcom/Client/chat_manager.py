@@ -43,7 +43,7 @@ class ChatManager:
         Logs the current user in
         :return: None
         '''
-        print "Logging in..."
+        print ("Logging in...")
         # create JSON document of user credentials
         user_data = json.dumps({
             "user_name": self.user_name,
@@ -63,21 +63,21 @@ class ChatManager:
             if cookie_found == True:
                 # Cookie found, login successful
                 self.is_logged_in = True
-                print "Login successful"
+                print ("Login successful")
             else:
                 # No cookie, login unsuccessful
                 self.user_name = ""
                 self.password = ""
-                print "Login unsuccessful, did not receive cookie from server"
+                print ("Login unsuccessful, did not receive cookie from server")
         except urllib2.HTTPError as e:
             # HTTP error happened, the response status is not 200 (OK)
-            print "Unable to log in, server returned HTTP", e.code, e.msg
+            print ("Unable to log in, server returned HTTP", e.code, e.msg)
             self.user_name = ""
             self.password = ""
             self.is_logged_in = False
         except urllib2.URLError as e:
             # Other kinds of errors related to the network
-            print "Unable to log in, reason:", e.message
+            print ("Unable to log in, reason:", e.message)
             self.user_name = ""
             self.password = ""
             self.is_logged_in = False
@@ -97,20 +97,20 @@ class ChatManager:
                 r = urllib2.urlopen(req)
                 users = json.loads(r.read())
             except urllib2.HTTPError as e:
-                print "Unable to create conversation, server returned HTTP", e.code, e.msg
+                print ("Unable to create conversation, server returned HTTP", e.code, e.msg)
                 return
             except urllib2.URLError as e:
-                print "Unable to create conversation, reason:", e.message
+                print ("Unable to create conversation, reason:", e.message)
                 return
             # Print potential participants
-            print "Available users:"
+            print ("Available users:")
             for user in users:
                 try:
                     if user["user_name"] != self.user_name:
                         # save
-                        print "\t", user["user_name"]
+                        print ("\t", user["user_name"])
                 except KeyError as e:
-                    print "Invalid JSON document: no user_name field"
+                    print ("Invalid JSON document: no user_name field")
             # Waiting for user input specifying participants
             participants = ""
             try:
@@ -126,7 +126,7 @@ class ChatManager:
             data = json.dumps({
                 "participants": json.dumps(participant_list)
             })
-            print "Creating new conversation..."
+            print ("Creating new conversation...")
             try:
                 # Send conversation create request to the server (participants are POSTed)
                 req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/create", data=data)
@@ -134,14 +134,14 @@ class ChatManager:
                 req.add_header("Cookie", self.cookie)
                 r = urllib2.urlopen(req)
             except urllib2.HTTPError as e:
-                print "Unable to create conversation, server returned HTTP", e.code, e.msg
+                print ("Unable to create conversation, server returned HTTP", e.code, e.msg)
                 return
             except urllib2.URLError as e:
-                print "Unable to create conversation, reason:", e.message
+                print ("Unable to create conversation, reason:", e.message)
                 return
-            print "Conversation created"
+            print ("Conversation created")
         else:
-            print "Please log in before creating new conversations"
+            print ("Please log in before creating new conversations")
             state = INIT
 
     def get_other_users(self):
@@ -159,10 +159,10 @@ class ChatManager:
                 req.add_header("Cookie", self.cookie)
                 r = urllib2.urlopen(req)
             except urllib2.HTTPError as e:
-                print "Unable to download conversations, server returned HTTP", e.code, e.msg
+                print ("Unable to download conversations, server returned HTTP", e.code, e.msg)
                 return
             except urllib2.URLError as e:
-                print "Unable to download conversations, reason:", e.message
+                print ("Unable to download conversations, reason:", e.message)
                 return
             conversations = json.loads(r.read())
             # Print conversations with IDs and participant lists
@@ -177,7 +177,7 @@ class ChatManager:
                     return participants
                     
         else:
-            print "Please log in before accessing Your conversations"
+            print ("Please log in before accessing Your conversations")
             state = INIT
         
 
@@ -196,20 +196,20 @@ class ChatManager:
                 req.add_header("Cookie", self.cookie)
                 r = urllib2.urlopen(req)
             except urllib2.HTTPError as e:
-                print "Unable to download conversations, server returned HTTP", e.code, e.msg
+                print ("Unable to download conversations, server returned HTTP", e.code, e.msg)
                 return
             except urllib2.URLError as e:
-                print "Unable to download conversations, reason:", e.message
+                print ("Unable to download conversations, reason:", e.message)
                 return
             conversations = json.loads(r.read())
             # Print conversations with IDs and participant lists
             for c in conversations:
                 conversation_id = c["conversation_id"]
-                print "Conversation", conversation_id, "has the following members:"
+                print ("Conversation", conversation_id, "has the following members:")
                 for participant in c["participants"]:
-                    print "\t", participant
+                    print ("\t", participant)
         else:
-            print "Please log in before accessing Your conversations"
+            print ("Please log in before accessing Your conversations")
             state = INIT
 
     def get_messages_of_conversation(self):
@@ -231,11 +231,11 @@ class ChatManager:
                     r = urllib2.urlopen(req)
                     msgs = json.loads(r.read())
                 except urllib2.HTTPError as e:
-                    print "Unable to download messages, server returned HTTP", e.code, e.msg
+                    print ("Unable to download messages, server returned HTTP", e.code, e.msg)
                     self.get_msgs_thread_started = False
                     continue
                 except urllib2.URLError as e:
-                    print "Unable to download messages, reason: ", e.message
+                    print ("Unable to download messages, reason: ", e.message)
                     self.get_msgs_thread_started = False
                     continue
                 # Process incoming messages
@@ -266,9 +266,9 @@ class ChatManager:
             req.add_header("Cookie", self.cookie)
             r = urllib2.urlopen(req)
         except urllib2.HTTPError as e:
-            print "Unable to post message, server returned HTTP", e.code, e.msg
+            print ("Unable to post message, server returned HTTP", e.code, e.msg)
         except urllib2.URLError as e:
-            print "Unable to post message, reason: ", e.message
+            print ("Unable to post message, reason: ", e.message)
 
     def read_user_input(self):
         '''
@@ -282,7 +282,7 @@ class ChatManager:
                 try:
                     # While in a conversation, read the message (user input from the console)
                     msg_raw = raw_input()
-                    print "\n"
+                    print ("\n")
                     # Send the message to the server
                     self.current_conversation.process_outgoing_message(
                         msg_raw=msg_raw,
@@ -294,7 +294,7 @@ class ChatManager:
                 except KeyboardInterrupt:
                     continue
         else:
-            print "Please log in before sending messages"
+            print ("Please log in before sending messages")
             state = INIT
 
     def run(self):
@@ -306,11 +306,11 @@ class ChatManager:
         self.login_user()
         # Allowed only if the current is logged in
         if self.is_logged_in == True:
-            print "Welcome"
+            print ("Welcome")
             # Start thread which retrieves messages from the server (won't do anything until in a conversation)
             self.get_msgs_thread.start()
             self.get_msgs_thread_started = True
-            print "Press Ctrl+Break (on Windows) or Ctrl+z (on Unix and Mac) to bring up menu"
+            print ("Press Ctrl+Break (on Windows) or Ctrl+z (on Unix and Mac) to bring up menu")
             # Run a state machine
             while True:
                 if state == CREATE_CONVERSATION:
@@ -332,15 +332,15 @@ class ChatManager:
                         try:
                             c_id = int(conversation_id)
                         except ValueError as e:
-                            print "Entered conversation ID is not a number"
+                            print ("Entered conversation ID is not a number")
                             continue
                         self.current_conversation = Conversation(c_id, self)
                         self.current_conversation.setup_conversation()
                     except urllib2.HTTPError as e:
-                        print "Unable to determine validity of conversation ID, server returned HTTP", e.code, e.msg
+                        print ("Unable to determine validity of conversation ID, server returned HTTP", e.code, e.msg)
                         continue
                     except urllib2.URLError as e:
-                        print "Unable to determine validity of conversation ID, reason: ", e.message
+                        print ("Unable to determine validity of conversation ID, reason: ", e.message)
                         continue
                     except EOFError:
                         # User has not provided any input, but waiting for the input was interrupted
@@ -367,7 +367,7 @@ class ChatManager:
         :return: None
         '''
         global state
-        print "\n", "Shutting down..."
+        print ("\n", "Shutting down...")
         # Signal message retrieval thread to terminate
         state = STOP
         # The message retrieval thread may not have started
@@ -376,7 +376,7 @@ class ChatManager:
             self.get_msgs_thread.join(MSG_QUERY_INTERVAL + 1)
         if self.current_conversation:
             self.current_conversation.exit()
-        print "Bye!"
+        print ("Bye!")
 
     def enter_menu(self, signum, frame):
         '''
@@ -390,8 +390,8 @@ class ChatManager:
         global state, has_requested_messages
         # Set the state of the state machine
         state = IN_MENU
-        print "\nYour " \
-              "active conversations:"
+        print ("\nYour " \
+                      "active conversations:")
         # Conversation was left, history of the next conversation will need to be downloaded again
         has_requested_messages = False
         # Get the conversations of the current user
@@ -404,7 +404,7 @@ class ChatManager:
             selected_option = raw_input()
         except RuntimeError:
             # raw_input() will raise RuntimeError of interrupted by OS signal
-            print "Error detected while waiting for user input, multiple attempts to enter menu?"
+            print ("Error detected while waiting for user input, multiple attempts to enter menu?")
             return
         except KeyboardInterrupt:
             return
@@ -419,4 +419,4 @@ class ChatManager:
             self.stop()
             exit()
         else:
-            print "Invalid selection"
+            print ("Invalid selection")

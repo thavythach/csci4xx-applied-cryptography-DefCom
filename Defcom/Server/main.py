@@ -55,7 +55,7 @@ class JsonHandler(tornado.web.RequestHandler):
     def check_for_logged_in_user(self):
         user_name = self.get_secure_cookie(Constants.COOKIE_NAME)
         if not user_name:
-            print "Unauthenticated request: denying answer!"
+            print ("Unauthenticated request: denying answer!")
             self.send_error(401)  # Bad Request
         return user_name
 
@@ -69,7 +69,7 @@ class MainHandler(tornado.web.RequestHandler):
         Not used URL entry.
         Only registered for convenience.
         """
-        print "Main function, redirecting to login..."
+        print ("Main function, redirecting to login...")
         self.redirect("/login")
 
 
@@ -91,7 +91,7 @@ class LoginHandler(JsonHandler):
         if current_user:
             if not self.get_secure_cookie(Constants.COOKIE_NAME):
                 self.set_secure_cookie(Constants.COOKIE_NAME, user_name)
-            print "User " + user_name + " successfully logged in!"
+            print ("User " + user_name + " successfully logged in!")
             self.set_status(200)
             self.finish()
         else:
@@ -110,7 +110,7 @@ class UsersHandler(JsonHandler):
         Required for starting a new conversation.
         """
 
-        print "Sending available users"
+        print ("Sending available users")
         users = cm.get_all_users()
 
         # Set JSON response
@@ -132,7 +132,7 @@ class ConversationHandler(JsonHandler):
         if not user_name:
             return
 
-        print "Getting all conversations for user: " + user_name
+        print ("Getting all conversations for user: " + user_name)
         conversations = cm.get_my_conversations(user_name)
         user_conversations = []
 
@@ -166,7 +166,7 @@ class ConversationCreateHandler(JsonHandler):
             participants = json.loads(participants)
             cm.create_conversation(participants)
         except KeyError as e:
-            print "KeyError during conversation creation!", e.message
+            print ("KeyError during conversation creation!", e.message)
             self.send_error(400, message=e.message)
             return
         except Exception as e:
@@ -195,13 +195,13 @@ class ConcreteConversationHandler(JsonHandler):
         if not user_name:
             return
 
-        print "Getting messages in conversation: " + str(conversation_id) + \
+        print ("Getting messages in conversation: " + str(conversation_id) + \
               " for user: " + user_name + \
-              " since: " + str(last_message_id)
+              " since: " + str(last_message_id))
 
         conversation = cm.get_conversation(conversation_id)
         if not conversation:
-            print "Conversation not found"
+            print ("Conversation not found")
             self.send_error(500)
             return
 
@@ -235,7 +235,7 @@ class ConcreteConversationHandler(JsonHandler):
         # getting the requested conversation
         conversation = cm.get_conversation(conversation_id)
         if not conversation:
-            print "conversation not found"
+            print ("conversation not found")
             self.send_error(500)
             return
 
@@ -245,11 +245,11 @@ class ConcreteConversationHandler(JsonHandler):
             message = self.request.arguments['content']
             conversation.add_message(user_name, message)
         except KeyError as e:
-            print "KeyError! Message content was not readable!", e.message
+            print("KeyError! Message content was not readable!", e.message)
             self.send_error(400, message=e.message)
             return
         except Exception as e:
-            print e.message
+            print (e.message)
             self.send_error(400, message=e.message)
             return
 

@@ -79,10 +79,10 @@ class Conversation:
                     # Get the name of the user who sent the message
                     owner_str = current_msg["owner"]
                 except KeyError as e:
-                    print "Received JSON does not hold a message"
+                    print ("Received JSON does not hold a message")
                     continue
                 except ValueError as e:
-                    print "Message ID is not a valid number:", current_msg["message_id"]
+                    print ("Message ID is not a valid number:", current_msg["message_id"])
                     continue
                 if msg_id > self.last_processed_msg_id:
                     # If the message has not been processed before, process it
@@ -168,7 +168,7 @@ class Conversation:
                       owner_name=owner_str)
         # If it does not originate from the current user or it is part of conversation history, print it
         if msg not in self.printed_messages:
-            print msg
+            print (msg)
             # Append it to the list of printed messages
             self.printed_messages.append(msg)
 
@@ -178,7 +178,7 @@ class Conversation:
         :return: string
         '''
         for msg in self.printed_messages:
-            print msg
+            print (msg)
 
     def get_id(self):
         '''

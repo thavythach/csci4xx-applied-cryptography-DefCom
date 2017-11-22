@@ -10,6 +10,6 @@ class Menu:
     def display(self):
         print(self.description)
         for key in sorted(self.items.keys()):
-            print "\t", key, " ", self.items[key]
+            print ("\t", key, " ", self.items[key])
 
 menu = Menu("Choose preferred action:")
