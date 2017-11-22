@@ -2,6 +2,7 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from Crypto import Random
 from base64 import b64encode, b64decode
+import unittest
 
 def Encrypt( _buffer, keystring ):
 	'''
@@ -69,13 +70,20 @@ def Decrypt( e_buffer, keystring ):
 	# return __buffer
 	return __buffer
 
+class TestCryptography(unittest.TestCase):
+	
+	def setUp( self ):
+		self.keystring = '0123456789abcdefghijklmnopqrstwv'
+		self.password = 'skylarlevey'
+
+	def testEncryption( self ):
+		ENC = Encrypt( _buffer=self.password, keystring=self.keystring )		
+		self.assertNotEqual( self.password, ENC )
+	
+	def testDecryption( self ):
+		ENC = Encrypt( _buffer=self.password, keystring=self.keystring )		
+		DEC = Decrypt( e_buffer=ENC, keystring=self.keystring )
+		self.assertEqual( self.password, DEC )
 
 if __name__ == "__main__":
-	
-	keystring = '0123456789abcdefghijklmnopqrstwv'
-	password = 'skylarlevey'
-	
-	ENC = Encrypt( _buffer=password, keystring=keystring )
-	DEC = Decrypt( e_buffer=ENC, keystring=keystring )
-	
-	print( "[ENC]=%s\n[DEC]%s\n" % (ENC,DEC) )
+	unittest.main()
