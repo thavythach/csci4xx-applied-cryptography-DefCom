@@ -1,0 +1,67 @@
+
+
+Hello Thavy and Skylar,
+
+Sorry for my late response. I looked at your new design, it is much
+better. I added a few comments, but you don't need to resubmit, I accept
+your submission, and evaluate it to 8 points (out of 10). The reason is
+that there are still few unclear things, especially:
+- the way public keys are authenticated
+- what are the protocol states and transitions between them
+
+For public key authentication: Sending a user's public key through the
+server which is untrusted puzzles me (when joining an exisiting chat
+room). The server can change that key to its own key, and re-sign the
+message:
+
+(Timestamp | Chat Room ID | Client Username | Public Key of Server
+| "requesting key for this chat session" ) Signature Server
+
+Then the active client will encrypt the chat key with the server's
+public key.
+
+The best way to solve these issues is to use certificates issued by a
+trusted party. You can use a simple custom certificate format and a
+hypothetical CA. Or you can assume that users know each other's public
+key via out of band channels, and you keep all keys locally in files.
+
+As for protocol states: your protocol is pretty complex, including many
+stages. It would be helpful to keep track of possible states and what
+transitions can occur between those.
+
+Also see my comments below inline:
+…
+
+
+On 2017.11.13. 10:31, Skylar Levey wrote:
+> While sitting in class this morning I realized there was a pretty glaring
+> problem with our implementation of the log in, even though the username and
+> password are encrypted with the server's public key, there is nothing
+> linking them to the signer of the message, so any attacker could simply
+> intercept the message and take the encrypted username and password, and
+> then sign it themselves and log in as that user.  To fix this we could
+> simply put a copy of the client's public key in the encrypted part of the
+> message, and have the server compare them once the message has been
+> verified and decrypted, so the message would look like this:
+>
+> (Signifier | Timestamp | Public Key of Client | ENC (Public Key of Client,
+> Username, Password) ) Signature
+>
+
+If you introduce certs (as suggested above), you can also have the
+username in the cert. Then this linking would be solved.
+…
+
+
+> also, I realized that we were not very explicit about headers, we intend to
+> put a message header before the timestamp of every message dictating the
+> version number, message type, and that should be it (we might add something
+> else like a nonce/message ID if it makes implementation easier.)  I just
+> wanted to make it more clear as I realized we really didn't say much about
+> it in our documentation.
+
+Sure, this is needed too. When incoming messages are parsed, this kind
+of information, especially message type, will be very useful.
+
+Thanks for your work, go ahead with implementation!
+Levente
