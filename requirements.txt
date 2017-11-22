@@ -1,5 +1,6 @@
 backports-abc==0.5
 certifi==2017.11.5
+pycrypto==2.6.1
 singledispatch==3.4.0.3
 six==1.11.0
 tornado==4.5.2
