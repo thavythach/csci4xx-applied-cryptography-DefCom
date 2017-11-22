@@ -1,4 +1,5 @@
 {
     "user_name" : "Steve",
-    "password"  : "Jobs"
+    "password"  : "Jobs",
+    "public_key": "7890"
 }

@@ -20,7 +20,7 @@ class ChatManager:
     '''
     Class responsible for driving the application
     '''
-    def __init__(self, user_name="", password=""):
+    def __init__(self, user_name="", password="", public_key=""):
         '''
         Constructor
         :param user_name: user name of the current user
@@ -36,6 +36,7 @@ class ChatManager:
         )  # thread, retrieves messages from the server
         self.user_name = user_name  # user name of the current user
         self.password = password  # password of the current user
+        self.public_key = public_key    
         self.get_msgs_thread_started = False  # message retrieval has not been started
 
     def login_user(self):
@@ -47,7 +48,8 @@ class ChatManager:
         # create JSON document of user credentials
         user_data = json.dumps({
             "user_name": self.user_name,
-            "password": self.password
+            "password": self.password,
+            "public_key": self.public_key
         })
         try:
             # Send user credentials to the server
@@ -68,18 +70,21 @@ class ChatManager:
                 # No cookie, login unsuccessful
                 self.user_name = ""
                 self.password = ""
+                self.public_key = ""
                 print ("Login unsuccessful, did not receive cookie from server")
         except urllib2.HTTPError as e:
             # HTTP error happened, the response status is not 200 (OK)
             print ("Unable to log in, server returned HTTP", e.code, e.msg)
             self.user_name = ""
             self.password = ""
+            self.public_key = ""
             self.is_logged_in = False
         except urllib2.URLError as e:
             # Other kinds of errors related to the network
             print ("Unable to log in, reason:", e.message)
             self.user_name = ""
             self.password = ""
+            self.public_key = ""
             self.is_logged_in = False
 
     def create_conversation(self):
