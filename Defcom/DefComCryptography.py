@@ -1,8 +1,15 @@
 from Crypto.Cipher import AES
+from Crypto.PublicKey import RSA 
 from Crypto.Util import Counter
 from Crypto import Random
 from base64 import b64encode, b64decode
+from Crypto.PublicKey import RSA 
+from Crypto.Signature import PKCS1_v1_5 
+from Crypto.Hash import SHA256 
+
 import unittest
+import datetime 
+
 
 def Encrypt( _buffer, keystring ):
 	'''
@@ -76,7 +83,80 @@ def Decrypt( e_buffer, keystring ):
 	# return __buffer
 	return __buffer.decode('utf-8')
 
-class TestCryptography(unittest.TestCase):
+def SignSignature( private_key, msg ):
+	'''
+	Using SHA-256 w/ 32 bit keys.
+
+	Key Arguments:
+	private_key - x bits key
+	msg - can be a tuple or concatenated msg
+
+	Return:
+	encoded64 signed value
+	'''
+
+	# import key
+	RSAkey = RSA.importKey( private_key )
+
+	# create signer object based off of PKCS V1.5
+	signer = PKCS1_v1_5.new( RSAkey )
+	
+	# create digest object
+	h = SHA256.new()
+	
+	# decode msg data
+	signifier, timestamp, pub_key, enc_pw = msg
+	h.update( b64decode( str(signifier) ) )
+	h.update( b64decode( timestamp ) )
+	h.update( b64decode( pub_key ) )
+	h.update( b64decode( enc_pw ) )
+	
+	# sign the digest
+	sign = signer.sign( h )
+	
+	# return 
+	return b64encode( sign )	
+
+def VerifiySignature( ):
+	
+	return null
+
+def generate_RSA(bits=2048):
+	'''
+	Generate an RSA keypair with an exponent of 65537 in PEM format
+	param: bits The key length in bits
+	Return private key and public key
+	'''
+	new_key = RSA.generate(bits, e=65537) 
+	public_key = new_key.publickey().exportKey("PEM") 
+	private_key = new_key.exportKey("PEM") 
+	return private_key.decode('utf-8'), public_key.decode('utf-8')
+
+class TestDigitalSignature( unittest.TestCase ):
+	
+	def setUp( self ):
+		self.private_key, self.public_key = generate_RSA()
+	
+	def testSignMsg( self ):
+		signifier = 1
+		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+		pub_key = self.public_key
+		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
+		msg = ( signifier, timestamp, pub_key, enc_pw )
+		SignSignature( private_key=self.private_key, msg=msg  ) 
+
+class TestKeyPairGeneration( unittest.TestCase ):
+	
+	def setUp( self ):
+		self.private_key, self.public_key = generate_RSA()
+	
+	def testKeys( self ):
+		pass
+		# print( self.private_key, "\n\n", self.public_key)
+		# print( len ( self.private_key ), "\n\n", len( self.public_key ) )
+		# TODO: TEST CASE SHOULD BE ADDED about length 
+
+class TestCryptography( unittest.TestCase ):
 	'''
 	TestCases for Cryptography Encrypt() and Decrypt() Functions
 
@@ -112,6 +192,7 @@ class TestCryptography(unittest.TestCase):
 		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )
 		## 31 bit key
 		self.assertRaises( KeyError, Decrypt, e_buffer=ENC, keystring=self.keystrings[1] )
+	
 			
 
 if __name__ == "__main__":
