@@ -169,7 +169,7 @@ def logInProtocol(login_data):
 	timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 	plainPassword = login_data["password"]
 	#key = GenerateKRandomBits(32)
-	key = '0123456789abcdefghijklmnopqrstwv' # TODO generate 32 bit key 
+	key = '0123456789abcdefghijklmnopqrstwv' # TODO generate 32 symmetric bit key 
 	encPassword = Encrypt(plainPassword,key)
 	sigMsg = timestamp+"|"+login_data["userName"]+"|"+encPassword
 	client_sig = SignSignature( private_key, sigMsg )

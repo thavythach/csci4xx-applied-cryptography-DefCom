@@ -18,12 +18,17 @@ class ChatManager:
         :return: the user object representing the logged in user.
         """
 
+        # TODO figure out how this is generated or stored on the server
+        symmetric_key = '0123456789abcdefghijklmnopqrstwv' 
         
-        ver_check = VerifiySignature( public_key, client_sig,  ) # TODO import DefCom Cryptography
+         # TODO import DefCom Cryptography
+        ver_check = VerifiySignature( public_key, client_sig, msg=timestamp+"|"+user_name+"|"+password )
+
         # search for the user among the registered users.
         current_user = None
         for user in RegisteredUsers:
-            if user["user_name"] == user_name:# TODO: fix username with hashing ... and user["password"] == password:
+            # TODO should we just store passwords as plaintext on the server? 
+            if ver_check and user["user_name"] == user_name and user["password"] == Decrypt(password, symmetric_key):
                 current_user = copy.deepcopy(user)
                 break
         if current_user:
