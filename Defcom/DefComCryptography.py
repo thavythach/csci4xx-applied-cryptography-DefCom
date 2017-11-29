@@ -165,6 +165,16 @@ def generate_RSA(bits=2048):
 	private_key = new_key.exportKey("PEM") 
 	return private_key.decode('utf-8'), public_key.decode('utf-8')
 
+def logInProtocol(login_data):
+	timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+	plainPassword = login_data["password"]
+	key = GenerateKRandomBits(32)
+	encPassword = Encrypt(plainPassword,key)
+	sigMsg = timestamp+"|"+login_data["userName"]+"|"+encPassword
+	SignSignature( private_key, sigMsg )
+	
+
+
 class TestDigitalSignature( unittest.TestCase ):
 	
 	def setUp( self ):
