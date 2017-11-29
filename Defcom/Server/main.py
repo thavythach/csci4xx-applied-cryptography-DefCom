@@ -87,7 +87,11 @@ class LoginHandler(JsonHandler):
         user_name = self.request.arguments['user_name']
         password = self.request.arguments['password']
         public_key = self.request.arguments['public_key']
-        current_user = cm.login_user(user_name, password, public_key)
+        timestamp = self.request.arguments['timestamp']
+        certificate = self.request.arguments['certificate']
+        client_sig = self.request.arguments['client_sig']
+
+        current_user = cm.login_user(user_name, password, public_key, timestamp, certificate, client_sig)
 
         if current_user:
             if not self.get_secure_cookie(Constants.COOKIE_NAME):
@@ -99,7 +103,6 @@ class LoginHandler(JsonHandler):
             # authentication error
             self.set_status(401)
             self.finish()
-
 
 class UsersHandler(JsonHandler):
     def data_received(self, chunk):
