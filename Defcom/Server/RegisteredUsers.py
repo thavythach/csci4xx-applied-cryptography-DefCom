@@ -2,11 +2,15 @@
 
 '''
 Database of Register Users File...
-TODO: require password to be hashed and salted
+TODO: require password to be hashed and salted (maybe)
+
+REAL TODO: password might be in plaintext
+REAL TODO: public key, private key needs to be generated.
 '''
 
+
 RegisteredUsers = [
-    {"user_name": "Elon", "password": "Musk", "public_key": "1234"},
+    {"user_name": "Elon", "password": "Musk", "public_key": "1234"},  
     {"user_name": "Bill", "password": "Gates", "public_key": "4567"},
     {"user_name": "Steve", "password": "Jobs", "public_key": "7890"}
 ]
