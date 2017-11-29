@@ -11,15 +11,14 @@ from Crypto.Random.random import getrandbits
 import unittest
 import datetime 
 
-def GenerateKRandomBits():
+def GenerateKRandomBits( keysize ):
 	k = 0
 	r = None
-	while k != 32:
-		r = getrandbits( k=32 )
+	while k != keysize:
+		r = getrandbits( k=keysize )
 		k = r.bit_length()
 	
-	print (r.bit_length())
-	return bytes( r )
+	return r
 
 def Encrypt( _buffer, keystring ):
 	'''
@@ -32,6 +31,11 @@ def Encrypt( _buffer, keystring ):
 	Return:
 	Encryption of buffer
 	'''
+
+	if len(keystring) == 32:
+		pass
+	else:
+		raise KeyError('keystring argument must be 32 bytes.')
 
 	# TLS style padding
 	plength = AES.block_size - ( len (_buffer) )% AES.block_size;
@@ -61,6 +65,13 @@ def Decrypt( e_buffer, keystring ):
 	Decryption of e_buffer
 
 	'''
+	
+	# TODO: EDGE CASE: buffer... format??? I think it's just a password
+	# TODO: EDGE CASE: keystring... at least 32 bits restriction`
+	if len(keystring) == 32:
+		pass
+	else:
+		raise KeyError('keystring argument must be 32 bytes.')
 
 	# read in encrypted payload
 	e_buffer = b64decode(e_buffer)
@@ -157,11 +168,21 @@ def generate_RSA(bits=2048):
 def logInProtocol(login_data):
 	timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 	plainPassword = login_data["password"]
-	key = GenerateKRandomBits(32)
+	#key = GenerateKRandomBits(32)
+	key = '0123456789abcdefghijklmnopqrstwv'
 	encPassword = Encrypt(plainPassword,key)
 	sigMsg = timestamp+"|"+login_data["userName"]+"|"+encPassword
-	SignSignature( private_key, sigMsg )
+	client_sig = SignSignature( private_key, sigMsg )
+	certificate = '1023456789abcdefghijklmnopqrstwv'
 	
+	user_data = json.dumps({
+            "timestamp":timestamp,
+            "user_name": login_data["userName"],
+            "password": encPassword,
+            "public_key": login_data["public_key"]
+            "client_sig": client_sig,
+            "certificate": certificate     
+    })
 
 
 class TestDigitalSignature( unittest.TestCase ):
@@ -177,7 +198,7 @@ class TestDigitalSignature( unittest.TestCase ):
 	def testSignMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
 		self.assertTrue( len(_sig) > 0)
-		# print ( _sig )
+		print ( _sig )
 
 	def testVerMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
@@ -196,6 +217,16 @@ class TestKeyPairGeneration( unittest.TestCase ):
 		# print( len ( self.private_key ), "\n\n", len( self.public_key ) )
 		# TODO: TEST CASE SHOULD BE ADDED about length 
 
+class TestRandomKeyGeneration( unittest.TestCase ):
+	
+	def setUp( self ):
+		self._keys = [1,2,4,8,16,32,64,128,256]
+	
+	def testKeys( self ):
+		for _key in self._keys:
+			key = GenerateKRandomBits( _key )
+			self.assertTrue( key.bit_length() in self._keys )
+
 class TestCryptography( unittest.TestCase ):
 	'''
 	TestCases for Cryptography Encrypt() and Decrypt() Functions
@@ -209,28 +240,29 @@ class TestCryptography( unittest.TestCase ):
 
 		self.keystrings = [
 			'0123456789abcdefghijklmnopqrstwv', # 32 perfect
-		]
-
-		self.g_keystrings = [
-			GenerateKRandomBits( ),
-			GenerateKRandomBits( ),
-			GenerateKRandomBits( )
+			'0123456789abcdefghijklmnopqrstw', # 31 perfect-1
+			'0123456789abcdefghijklmnopqrstwvx' # 34 perfect+1	
 		]
 
 	def testEncryption( self ):
 		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )		
 		self.assertNotEqual( self.password, ENC )
-
-	def testGenEncryption( self ):
-		for key in self.g_keystrings:
-			print( key )
-			ENC = Encrypt( _buffer=self.password, keystring=key)		
-			self.assertNotEqual( self.password, ENC )
 	
 	def testDecryption( self ):
 		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )
 		DEC = Decrypt( e_buffer=ENC, keystring=self.keystrings[0] )
 		self.assertEqual( self.password, DEC )
+	
+	def testEncryption_non_32_bit_key( self ):
+		self.assertRaises( KeyError, Encrypt, self.password, self.keystrings[1] )
+		self.assertRaises( KeyError, Encrypt, self.password, self.keystrings[2] )
+	
+	def testDecryption_non_32_bit_key( self ):
+		
+		## 32 bit key
+		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )
+		## 31 bit key
+		self.assertRaises( KeyError, Decrypt, e_buffer=ENC, keystring=self.keystrings[1] )
 	
 if __name__ == "__main__":
 	unittest.main()
