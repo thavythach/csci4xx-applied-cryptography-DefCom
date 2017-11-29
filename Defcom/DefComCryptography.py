@@ -169,26 +169,21 @@ class TestDigitalSignature( unittest.TestCase ):
 	
 	def setUp( self ):
 		self.private_key, self.public_key = generate_RSA()
+		signifier = 1
+		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+		pub_key = self.public_key
+		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
+		self._msg = ( signifier, timestamp, pub_key, enc_pw )
 	
 	def testSignMsg( self ):
-		signifier = 1
-		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
-		pub_key = self.public_key
-		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
-		self._msg = ( signifier, timestamp, pub_key, enc_pw )
-		self._sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
-		print ( self._sig )
+		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
+		self.assertTrue( len(_sig) > 0)
+		print ( _sig )
 
 	def testVerMsg( self ):
-		signifier = 1
-		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
-		pub_key = self.public_key
-		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
-		self._msg = ( signifier, timestamp, pub_key, enc_pw )
-		self._sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
-
-		itWorked = VerifiySignature( self.public_key, self._sig, self._msg )
-		print (itWorked)
+		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
+		itWorked = VerifiySignature( self.public_key, _sig, self._msg )
+		self.assertTrue( itWorked )
 
 
 class TestKeyPairGeneration( unittest.TestCase ):
