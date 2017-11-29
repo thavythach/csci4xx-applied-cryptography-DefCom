@@ -1,6 +1,7 @@
 import copy
 from RegisteredUsers import RegisteredUsers
 from Conversation import Conversation
+from ... import DefComCryptography as DFC 
 
 class ChatManager:
     def __init__(self):
@@ -22,13 +23,13 @@ class ChatManager:
         symmetric_key = '0123456789abcdefghijklmnopqrstwv' 
         
          # TODO import DefCom Cryptography
-        ver_check = VerifiySignature( public_key, client_sig, msg=timestamp+"|"+user_name+"|"+password )
+        ver_check = DFC.VerifiySignature( public_key, client_sig, msg=timestamp+"|"+user_name+"|"+password )
 
         # search for the user among the registered users.
         current_user = None
         for user in RegisteredUsers:
             # TODO should we just store passwords as plaintext on the server? 
-            if ver_check and user["user_name"] == user_name and user["password"] == Decrypt(password, symmetric_key):
+            if ver_check and user["user_name"] == user_name and user["password"] == DFC.Decrypt(password, symmetric_key):
                 current_user = copy.deepcopy(user)
                 break
         if current_user:
