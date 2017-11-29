@@ -173,7 +173,7 @@ def logInProtocol(login_data):
 	encPassword = Encrypt(plainPassword,key)
 	sigMsg = timestamp+"|"+login_data["userName"]+"|"+encPassword
 	client_sig = SignSignature( private_key, sigMsg )
-	certificate = '1023456789abcdefghijklmnopqrstwv'
+	certificate = '1023456789abcdefghijklmnopqrstwv' # TODO generate 32-bit cert key
 	
 	user_data = json.dumps({
             "timestamp":timestamp,
