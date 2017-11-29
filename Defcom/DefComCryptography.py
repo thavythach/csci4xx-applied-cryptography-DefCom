@@ -6,10 +6,19 @@ from base64 import b64encode, b64decode
 from Crypto.PublicKey import RSA 
 from Crypto.Signature import PKCS1_v1_5 
 from Crypto.Hash import SHA256 
+from Crypto.Random.random import getrandbits
 
 import unittest
 import datetime 
 
+def GenerateKRandomBits( keysize ):
+	k = 0
+	r = None
+	while k != keysize:
+		r = getrandbits( k=keysize )
+		k = r.bit_length()
+	
+	return r
 
 def Encrypt( _buffer, keystring ):
 	'''
@@ -34,7 +43,7 @@ def Encrypt( _buffer, keystring ):
 
 	# generate inital vector as a random value using PRNG
 	iv = Random.new().read(AES.block_size);
-	
+		
 	# create AES cipher object
 	cipher = AES.new(keystring, AES.MODE_CBC, iv);
 
@@ -138,6 +147,7 @@ class TestDigitalSignature( unittest.TestCase ):
 		self.private_key, self.public_key = generate_RSA()
 	
 	def testSignMsg( self ):
+		pass
 		signifier = 1
 		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 		pub_key = self.public_key
@@ -155,6 +165,16 @@ class TestKeyPairGeneration( unittest.TestCase ):
 		# print( self.private_key, "\n\n", self.public_key)
 		# print( len ( self.private_key ), "\n\n", len( self.public_key ) )
 		# TODO: TEST CASE SHOULD BE ADDED about length 
+
+class TestRandomKeyGeneration( unittest.TestCase ):
+	
+	def setUp( self ):
+		self._keys = [1,2,4,8,16,32,64,128,256]
+	
+	def testKeys( self ):
+		for _key in self._keys:
+			key = GenerateKRandomBits( _key )
+			self.assertTrue( key.bit_length() in self._keys )
 
 class TestCryptography( unittest.TestCase ):
 	'''
@@ -193,7 +213,5 @@ class TestCryptography( unittest.TestCase ):
 		## 31 bit key
 		self.assertRaises( KeyError, Decrypt, e_buffer=ENC, keystring=self.keystrings[1] )
 	
-			
-
 if __name__ == "__main__":
 	unittest.main()
