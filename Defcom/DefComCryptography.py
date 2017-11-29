@@ -87,7 +87,7 @@ def Decrypt( e_buffer, keystring ):
 	_buffer = cipher.decrypt( e_buffer )
 	
 	# remove TLS padding
-	__buffer = _buffer[:len(_buffer)-_buffer[-1]]
+	__buffer = _buffer[:len(_buffer)-ord(_buffer[-1])]
 	
 	# return __buffer
 	return __buffer.decode('utf-8')
@@ -115,10 +115,11 @@ def SignSignature( private_key, msg ):
 	
 	# decode msg data
 	signifier, timestamp, pub_key, enc_pw = msg
-	h.update( b64decode( str(signifier) ) )
-	h.update( b64decode( timestamp ) )
-	h.update( b64decode( pub_key ) )
-	h.update( b64decode( enc_pw ) )
+	signifierStr = str(signifier)
+	h.update( b64encode( signifierStr ) )
+	h.update( b64encode( timestamp ) )
+	h.update( b64encode( pub_key ) )
+	h.update( b64encode( enc_pw ) )
 	
 	# sign the digest
 	sign = signer.sign( h )
@@ -126,9 +127,32 @@ def SignSignature( private_key, msg ):
 	# return 
 	return b64encode( sign )	
 
-def VerifiySignature( ):
-	
-	return null
+
+def VerifiySignature( public_key, signature, msg ):
+	'''
+	Verifies with a public key from whom the msg came that it was indeed 
+	signed by their private key
+	param: public_key_loc Path to public key
+	param: signature String signature to be verified
+	return: Boolean. True if the signature is valid; False otherwise. 
+	'''
+
+	rsakey = RSA.importKey( public_key ) 
+
+	signer = PKCS1_v1_5.new( rsakey ) 
+
+	digest = SHA256.new() 
+
+	signifier, timestamp, pub_key, enc_pw = msg
+	signifierStr = str(signifier)
+	digest.update( b64encode( signifierStr ) )
+	digest.update( b64encode( timestamp ) )
+	digest.update( b64encode( pub_key ) )
+	digest.update( b64encode( enc_pw ) ) 
+
+	if signer.verify( digest, b64decode( signature ) ):
+		return True
+	return False
 
 def generate_RSA(bits=2048):
 	'''
@@ -147,13 +171,25 @@ class TestDigitalSignature( unittest.TestCase ):
 		self.private_key, self.public_key = generate_RSA()
 	
 	def testSignMsg( self ):
-		pass
 		signifier = 1
 		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 		pub_key = self.public_key
 		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
-		msg = ( signifier, timestamp, pub_key, enc_pw )
-		SignSignature( private_key=self.private_key, msg=msg  ) 
+		self._msg = ( signifier, timestamp, pub_key, enc_pw )
+		self._sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
+		print ( self._sig )
+
+	def testVerMsg( self ):
+		signifier = 1
+		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+		pub_key = self.public_key
+		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
+		self._msg = ( signifier, timestamp, pub_key, enc_pw )
+		self._sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
+
+		itWorked = VerifiySignature( self.public_key, self._sig, self._msg )
+		print (itWorked)
+
 
 class TestKeyPairGeneration( unittest.TestCase ):
 	
