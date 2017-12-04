@@ -3,7 +3,7 @@ from Crypto.PublicKey import RSA
 import json
 import unittest
 from datetime import timedelta, datetime
-
+from mastermind import create_new_user
 
 
 SERV_KEY = RSA.generate(1024, e=65537) # TODO: SHOULD BE IN A GLOBAL CONFIG
@@ -58,23 +58,7 @@ def AuthenticationProtocol( data ):
 
 	return user_data
 
-# TODO move this into DefComCryptography or somewhere else...
-def create_new_user( username, plaintext_password ):
-	'''
 
-	RETURNS A JSON OBJECT of credentials the user ONLY HAS
-	'''
-	client_priv, client_pub = generate_RSA()
-	
-	cert = Generate32BitKey()
-	# print( cert )
-	return json.dumps({
-		"user_name": username,
-		"password": plaintext_password,
-		"public_key": client_pub,
-		"private_key": client_priv,
-		"certificate":  123 # TODO fix cert.....
-	})
 
 def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 ):
 	'''
@@ -104,6 +88,7 @@ class TestAuthenticationRequest( unittest.TestCase ):
 		# the line below should be sent to the server
 		creds = AuthenticationProtocol( data=self.users_private_credentials )
 		print creds
+		print "TODO: fix testcase lol -kek"
 		# self.assertTrue( creds['timestamp']  )
 		# print users_encrypted_credentials
 	
