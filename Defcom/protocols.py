@@ -2,7 +2,8 @@ from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignSignature
 from Crypto.PublicKey import RSA 
 import json
 import unittest
-import datetime
+from datetime import timedelta, datetime
+
 
 
 SERV_KEY = RSA.generate(1024, e=65537) # TODO: SHOULD BE IN A GLOBAL CONFIG
@@ -22,7 +23,7 @@ def AuthenticationProtocol( data ):
 	login_data = json.loads( data )
 	
 	# produce a timestamp
-	timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 	# retrieve password
 	plain_password = login_data["password"]
@@ -40,7 +41,7 @@ def AuthenticationProtocol( data ):
 	payload = timestamp+"|"+login_data["user_name"]+"|"+password
 
 	# encrypt sym_key with server's public key
-	enc_sym_key = serv_pub.encrypt( payload.encode('utf-8'), 32 )
+	enc_sym_key = serv_pub.encrypt( payload.encode('utf-8'), 32 )[0].decode('unicode-escape')
 
 	# generate the client signature 
 	client_sig = SignSignature( private_key=login_data['private_key'], msg=payload )
@@ -52,8 +53,10 @@ def AuthenticationProtocol( data ):
 			"public_key": login_data["public_key"],
 			"enc_sym_key": enc_sym_key,
 			"client_sig": client_sig,
-			"certificate": 43 # TODO FIX ..... it's just 43 right now
+			"certificate": login_data['certificate'] # TODO FIX ..... it's just 43 right now
 	})
+
+	return user_data
 
 # TODO move this into DefComCryptography or somewhere else...
 def create_new_user( username, plaintext_password ):
@@ -70,9 +73,22 @@ def create_new_user( username, plaintext_password ):
 		"password": plaintext_password,
 		"public_key": client_pub,
 		"private_key": client_priv,
-		"certificate":  123# TODO fix cert.....
+		"certificate":  123 # TODO fix cert.....
 	})
 
+def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 ):
+	'''
+	Tells us whether or not the message was a valid message given 30 seconds
+
+	Keyword Arguments:
+	timestamp - client/server timestamp
+	t - time available: default 30 seconds
+	'''
+
+	dt_obj = datetime.strptime( timestamp, '%Y-%m-%d %H:%M:%S' ) 
+	if dt_obj <= timestamp_against-timedelta( seconds=t ):
+		return True
+	return False
 
 class TestAuthenticationRequest( unittest.TestCase ):
 	
@@ -86,8 +102,40 @@ class TestAuthenticationRequest( unittest.TestCase ):
 
 	def testAuthReq( self ):
 		# the line below should be sent to the server
-		users_encrypted_credentials = AuthenticationProtocol( data=self.users_private_credentials )
+		creds = AuthenticationProtocol( data=self.users_private_credentials )
+		print creds
+		# self.assertTrue( creds['timestamp']  )
 		# print users_encrypted_credentials
 	
+class TestReplayProtection( unittest.TestCase ):
+	
+	def setUp( self ):
+    		
+		self.now = datetime.now()
+		self.timestamps = [
+			( self.now + timedelta(seconds = -20)).strftime("%Y-%m-%d %H:%M:%S"),
+			( self.now + timedelta(seconds = -10)).strftime("%Y-%m-%d %H:%M:%S"),
+			( self.now + timedelta(seconds = -5)).strftime("%Y-%m-%d %H:%M:%S"),
+			( self.now + timedelta(seconds = -1)).strftime("%Y-%m-%d %H:%M:%S"),
+		]
+
+		self.bad_timestamps = [
+			( self.now + timedelta(seconds = -30)).strftime("%Y-%m-%d %H:%M:%S"),
+			( self.now + timedelta(seconds = -40)).strftime("%Y-%m-%d %H:%M:%S"),
+		]
+		
+	def testGoodDetectReplayProtection( self ):
+		for ts in self.timestamps:
+			boolReplay = detect_replay_protection( timestamp=ts, timestamp_against=self.now )
+			self.assertFalse( boolReplay )
+
+	def testBadDetectReplayProtection( self ):
+		for ts in self.bad_timestamps:
+			boolReplay = detect_replay_protection( timestamp=ts, timestamp_against=self.now )
+			self.assertTrue( boolReplay )
+
+
 if __name__ == "__main__":
 	unittest.main()
+	
+			

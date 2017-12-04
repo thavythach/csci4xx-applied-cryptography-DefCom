@@ -157,9 +157,6 @@ def generate_RSA(bits=2048):
 	private_key = new_key.exportKey("PEM") 
 	return private_key.decode('utf-8'), public_key.decode('utf-8')
 
-
-
-
 class TestDigitalSignature( unittest.TestCase ):
 	
 	def setUp( self ):
@@ -169,7 +166,7 @@ class TestDigitalSignature( unittest.TestCase ):
 		password='skylarlevy'
 		
 		self.private_key, self.public_key = generate_RSA()
-		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
+		timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		pub_key = self.public_key
 		enc_pw = Encrypt( _buffer=password, keystring=Generate32BitKey() )
 		self._msg = timestamp+"|"+username+"|"+enc_pw
