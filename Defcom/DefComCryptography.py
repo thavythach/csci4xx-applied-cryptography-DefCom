@@ -109,7 +109,7 @@ def SignSignature( private_key, msg ):
 	h = SHA256.new()
 	
 	# decode msg data
-	timestamp, pub_key, enc_pw = msg
+	timestamp, pub_key, enc_pw = msg.split('|')
 
 	h.update( b64encode( timestamp ) )
 	h.update( b64encode( pub_key ) )
@@ -137,7 +137,7 @@ def VerifiySignature( public_key, signature, msg ):
 
 	digest = SHA256.new() 
 
-	timestamp, pub_key, enc_pw = msg
+	timestamp, pub_key, enc_pw = msg.split('|')
 	digest.update( b64encode( timestamp ) )
 	digest.update( b64encode( pub_key ) )
 	digest.update( b64encode( enc_pw ) ) 
@@ -165,14 +165,14 @@ class TestDigitalSignature( unittest.TestCase ):
 	def setUp( self ):
 
 		# user credentials	
+		username='skylar-qwerty'
 		password='skylarlevy'
 		
-
 		self.private_key, self.public_key = generate_RSA()
 		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 		pub_key = self.public_key
-		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
-		self._msg = ( timestamp, pub_key, enc_pw )
+		enc_pw = Encrypt( _buffer=password, keystring=Generate32BitKey() )
+		self._msg = timestamp+"|"+username+"|"+enc_pw
 	
 	def testSignMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
