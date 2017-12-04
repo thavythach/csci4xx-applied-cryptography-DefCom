@@ -30,11 +30,22 @@ if __name__ == "__main__":
 		('quantum', 'cryptography')
 	]
 
+	users = []
 	for user, pw in user_pass:
 		data = create_new_user( username=user , plaintext_password=pw )
 
 		with open('user_' + user + ".json", 'w') as outfile:
 			json.dump(data, outfile)
+
+		users.append( 
+			{ data['user_name'],
+			 data['password'], 
+			 data['public_key']
+			 }
+		)
+	
+	with open('RegisteredUsers.py', 'w') as outfile:
+		outfile.write( users )
 	
 	# TODO put in a user folder
 	# for idx in range(0,10):
