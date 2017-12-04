@@ -10,15 +10,10 @@ from Crypto.Random.random import getrandbits
 
 import unittest
 import datetime 
+import os
 
-def GenerateKRandomBits( keysize ):
-	k = 0
-	r = None
-	while k != keysize:
-		r = getrandbits( k=keysize )
-		k = r.bit_length()
-	
-	return r
+def Generate32BitKey():
+	return os.urandom(32);
 
 def Encrypt( _buffer, keystring ):
 	'''
@@ -46,7 +41,7 @@ def Encrypt( _buffer, keystring ):
 		
 	# create AES cipher object
 	cipher = AES.new(keystring, AES.MODE_CBC, iv);
-
+	
 	# encrypt the buffer
 	e_buffer = b64encode( iv + cipher.encrypt(_buffer) )
 
@@ -176,13 +171,13 @@ def logInProtocol(login_data):
 	certificate = '1023456789abcdefghijklmnopqrstwv' # TODO generate 32-bit cert key
 	
 	user_data = json.dumps({
-            "timestamp":timestamp,
-            "user_name": login_data["userName"],
-            "password": encPassword,
-            "public_key": login_data["public_key"],
-            "client_sig": client_sig,
-            "certificate": certificate     
-    })
+			"timestamp":timestamp,
+			"user_name": login_data["userName"],
+			"password": encPassword,
+			"public_key": login_data["public_key"],
+			"client_sig": client_sig,
+			"certificate": certificate     
+	})
 
 
 class TestDigitalSignature( unittest.TestCase ):
@@ -212,20 +207,25 @@ class TestKeyPairGeneration( unittest.TestCase ):
 		self.private_key, self.public_key = generate_RSA()
 	
 	def testKeys( self ):
-		pass
-		# print( self.private_key, "\n\n", self.public_key)
-		# print( len ( self.private_key ), "\n\n", len( self.public_key ) )
-		# TODO: TEST CASE SHOULD BE ADDED about length 
+		self.assertTrue( self.private_key != None and self.public_key != None )
 
 class TestRandomKeyGeneration( unittest.TestCase ):
 	
-	def setUp( self ):
-		self._keys = [1,2,4,8,16,32,64,128,256]
+	def testKey( self ):
+		key = Generate32BitKey()
+		self.assertTrue( len( key ) == 32 )
 	
-	def testKeys( self ):
-		for _key in self._keys:
-			key = GenerateKRandomBits( _key )
-			self.assertTrue( key.bit_length() in self._keys )
+	def testMultipleKey( self ):
+		keys = [
+			Generate32BitKey(),
+			Generate32BitKey(),
+			Generate32BitKey(),
+			Generate32BitKey(),
+			Generate32BitKey()
+		]
+		
+		for key in keys:
+			self.assertTrue( len( key ) == 32 )
 
 class TestCryptography( unittest.TestCase ):
 	'''
