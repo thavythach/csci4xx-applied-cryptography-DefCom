@@ -109,9 +109,8 @@ def SignSignature( private_key, msg ):
 	h = SHA256.new()
 	
 	# decode msg data
-	signifier, timestamp, pub_key, enc_pw = msg
-	signifierStr = str(signifier)
-	h.update( b64encode( signifierStr ) )
+	timestamp, pub_key, enc_pw = msg
+
 	h.update( b64encode( timestamp ) )
 	h.update( b64encode( pub_key ) )
 	h.update( b64encode( enc_pw ) )
@@ -138,9 +137,7 @@ def VerifiySignature( public_key, signature, msg ):
 
 	digest = SHA256.new() 
 
-	signifier, timestamp, pub_key, enc_pw = msg
-	signifierStr = str(signifier)
-	digest.update( b64encode( signifierStr ) )
+	timestamp, pub_key, enc_pw = msg
 	digest.update( b64encode( timestamp ) )
 	digest.update( b64encode( pub_key ) )
 	digest.update( b64encode( enc_pw ) ) 
@@ -160,40 +157,27 @@ def generate_RSA(bits=2048):
 	private_key = new_key.exportKey("PEM") 
 	return private_key.decode('utf-8'), public_key.decode('utf-8')
 
-def logInProtocol(login_data):
-	timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
-	plainPassword = login_data["password"]
-	#key = GenerateKRandomBits(32)
-	key = '0123456789abcdefghijklmnopqrstwv' # TODO generate 32 symmetric bit key 
-	encPassword = Encrypt(plainPassword,key)
-	sigMsg = timestamp+"|"+login_data["userName"]+"|"+encPassword
-	client_sig = SignSignature( private_key, sigMsg )
-	certificate = '1023456789abcdefghijklmnopqrstwv' # TODO generate 32-bit cert key
-	
-	user_data = json.dumps({
-			"timestamp":timestamp,
-			"user_name": login_data["userName"],
-			"password": encPassword,
-			"public_key": login_data["public_key"],
-			"client_sig": client_sig,
-			"certificate": certificate     
-	})
+
 
 
 class TestDigitalSignature( unittest.TestCase ):
 	
 	def setUp( self ):
+
+		# user credentials	
+		password='skylarlevy'
+		
+
 		self.private_key, self.public_key = generate_RSA()
-		signifier = 1
 		timestamp = datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
 		pub_key = self.public_key
 		enc_pw = Encrypt( _buffer='skylarlevey', keystring='0123456789abcdefghijklmnopqrstwv' )
-		self._msg = ( signifier, timestamp, pub_key, enc_pw )
+		self._msg = ( timestamp, pub_key, enc_pw )
 	
 	def testSignMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
 		self.assertTrue( len(_sig) > 0)
-		print ( _sig )
+		# print ( _sig )
 
 	def testVerMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
@@ -244,6 +228,12 @@ class TestCryptography( unittest.TestCase ):
 			'0123456789abcdefghijklmnopqrstwvx' # 34 perfect+1	
 		]
 
+		self.gen_ks = [
+			Generate32BitKey(),
+			Generate32BitKey(),
+			Generate32BitKey(),
+		]
+
 	def testEncryption( self ):
 		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )		
 		self.assertNotEqual( self.password, ENC )
@@ -263,6 +253,18 @@ class TestCryptography( unittest.TestCase ):
 		ENC = Encrypt( _buffer=self.password, keystring=self.keystrings[0] )
 		## 31 bit key
 		self.assertRaises( KeyError, Decrypt, e_buffer=ENC, keystring=self.keystrings[1] )
+	
+	def testGeneratedEncryption( self ):
+		'''generates 44-bit keys out of the password'''
+		for key in self.gen_ks:
+			ENC = Encrypt( _buffer=self.password, keystring=key )
+			self.assertNotEqual( self.password, ENC )
+	
+	def testGeneratedDecryption( self ): 
+		for key in self.gen_ks:
+			ENC = Encrypt( _buffer=self.password, keystring=key )
+			DEC = Decrypt( e_buffer=ENC, keystring=key)
+			self.assertEqual( self.password, DEC )
 	
 if __name__ == "__main__":
 	unittest.main()

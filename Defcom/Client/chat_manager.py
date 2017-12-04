@@ -49,7 +49,9 @@ class ChatManager:
 		user_data = json.dumps({
 			"user_name": self.user_name,
 			"password": self.password,
-			"public_key": self.public_key
+			"public_key": self.public_key,
+			"private_key": self.private_key,
+			"certificate": self.certificate
 		})
 
 		user_data = DFC.loginProtocol( login_data=user_data )
