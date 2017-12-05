@@ -14,17 +14,39 @@ def AuthenticationConfirmation( user_name, password, public_key, timestamp, now_
 	:params...:
 	'''
 	sym_key = None
+	print timestamp, now_timestamp
 	boolReplay = detect_replay_protection( timestamp=timestamp, timestamp_against=now_timestamp ) 
-	goodCert = None
+	goodCert = False
+	pw = password
+
+	print boolReplay
 	
 	# if true decompose msg, else return False
-	msg = timestamp + '|' + public_key + '|' + password
-	ver_check = VerifiySignature( client_sig, msg )
+	msg = timestamp + public_key + password
+	print public_key
+	print client_sig
+	print timestamp
+	ver_check = VerifiySignature( public_key, client_sig, msg )
+	print ver_check
 	
 	if ver_check:
-    	
+		pw = password
+		serv_pub = SERV_PUB_KEY.publickey()
+		sym_key = serv_pub.decrypt( enc_sym_key )
 
-	pw = None
+		# PLACEHOLDER FOR SKYLAR...TO FIX
+		goodCert = True
+		'''
+		user_pub_key_check = decrypt(_buffer=user_creds["certificate"], keystring=ca_pub_key)
+
+		if not (user_pub_key_check == ):
+			return "the public key was not signed properly was not correct"
+		'''
+	else:
+		pass
+
+	print pw
+	print sym_key
 
 	return ( sym_key, boolReplay, goodCert, ver_check, pw )
 
@@ -39,10 +61,7 @@ def AuthenticationConfrimation( user_data ):
 	#TODO: open up users file and get pw for the given username
 	#also get the public key (ca_pub_key) of the CA
 
-	user_pub_key_check = decrypt(_buffer=user_creds["certificate"], keystring=ca_pub_key)
-
-	if not (user_pub_key_check == ):
-		return "the public key was not signed properly was not correct"
+	
 
 
 
@@ -66,24 +85,38 @@ def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 
 	'''
 
 	dt_obj = datetime.strptime( timestamp, '%Y-%m-%d %H:%M:%S' ) 
-	if dt_obj <= timestamp_against-timedelta( seconds=t ):
+	dta_obj = datetime.strptime( timestamp_against, '%Y-%m-%d %H:%M:%S' ) 
+
+	if dt_obj <= dta_obj-timedelta( seconds=-t ):
 		return True
 	return False
 
 
-
 class TestAuthenticationConfrimation( unittest.TestCase ):
 
-	def setUp( self ):
-		self.users_private_credentials = create_new_user( 
-			username='Thavy', 
-			plaintext_password='skylarlevy421'
-		)
+	def setUp( self ):'''
+		with open('user_quantum.json', 'r') as outfile:
+			self.json_data = outfile.read()
+			self.data = json.loads( self.json_data )
+		
+		creds = client_protocols.AuthenticationProtocol( data=self.json_data )
+
+		for c in creds:
+			print c, creds[c]'''
 
 	def testAuthConf( self ):
-		creds = AuthenticationProtocol( data=self.users_private_credentials )
-		creds_dict = json.loads(creds)
+			
+		'''
+		AuthenticationConfirmation( 
+			user_name=creds['user_name'], 
+			password=creds['password'], 
+			public_key=creds['public_key'], 
+			timestamp=creds['timestamp'], 
+			now_timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+			enc_sym_key=creds['enc_sym_key'], 
+			certificate=creds['certificate'], 
+			client_sig=creds['client_sig']
+		 )'''
 
-		#todo authenticate time stamp
-
-
+if __name__ == "__main__":
+	unittest.main()

@@ -106,18 +106,13 @@ def SignSignature( private_key, msg ):
 	# create digest object
 	h = SHA256.new()
 	
-	# decode msg data
-	timestamp, pub_key, enc_pw = msg.split('|')
-
-	h.update( b64encode( timestamp ) )
-	h.update( b64encode( pub_key ) )
-	h.update( b64encode( enc_pw ) )
+	h.update( b64encode(msg) )
 	
 	# sign the digest
 	sign = signer.sign( h )
 	
 	# return 
-	return b64encode( sign )	
+	return b64encode(sign)
 
 
 def VerifiySignature( public_key, signature, msg ):
@@ -135,12 +130,9 @@ def VerifiySignature( public_key, signature, msg ):
 
 	digest = SHA256.new() 
 
-	timestamp, pub_key, enc_pw = msg.split('|')
-	digest.update( b64encode( timestamp ) )
-	digest.update( b64encode( pub_key ) )
-	digest.update( b64encode( enc_pw ) ) 
+	digest.update( b64encode(msg) ) 
 
-	if signer.verify( digest, b64decode( signature ) ):
+	if signer.verify( digest, b64decode(signature)  ):
 		return True
 	return False
 
@@ -167,7 +159,7 @@ class TestDigitalSignature( unittest.TestCase ):
 		timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		pub_key = self.public_key
 		enc_pw = Encrypt( _buffer=password, keystring=Generate32BitKey() )
-		self._msg = timestamp+"|"+username+"|"+enc_pw
+		self._msg = timestamp+username+enc_pw
 	
 	def testSignMsg( self ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
@@ -178,7 +170,6 @@ class TestDigitalSignature( unittest.TestCase ):
 		_sig = SignSignature( private_key=self.private_key, msg=self._msg  ) 
 		itWorked = VerifiySignature( self.public_key, _sig, self._msg )
 		self.assertTrue( itWorked )
-
 
 class TestKeyPairGeneration( unittest.TestCase ):
 	

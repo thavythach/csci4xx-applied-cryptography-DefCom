@@ -51,6 +51,7 @@ class JsonHandler(tornado.web.RequestHandler):
 
     def write_json(self):
         output = json.dumps(self.response)
+        print self.response
         self.write(output)
 
     def check_for_logged_in_user(self):
