@@ -1,3 +1,5 @@
+from Crypto.PublicKey import RSA 
+
 # Connection to the chat server
 SERVER      = '127.0.0.1'  # IP of the server
 SERVER_PORT = '8888'          # port on which the server is running
@@ -14,6 +16,9 @@ IN_CONVERSATION         = 4  # chatting state
 STOP                    = 5  # stopping state (application exits, triggered by CTRL+c)
 
 # SERV KEY
-SERV_PUB_KEY = 'abcefhijklmnopqrstuv' # TODO: change this <-- placeholdedr
-CLIENT_CERTIFICATE = 'placeholder' # TODO: change this too
+f = open( 'SERV_PUB_KEY.pem', 'r' )
+SERV_PUB_KEY = RSA.importKey(f.read())
+f.close()
 
+
+CLIENT_CERTIFICATE = 'placeholder' # TODO: change this too

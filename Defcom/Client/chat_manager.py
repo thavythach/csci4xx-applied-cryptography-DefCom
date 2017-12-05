@@ -10,7 +10,7 @@ from menu import menu
 from threading import Thread
 
 import base64
-from .. import DefComCryptography as DFC 
+import client_protocols as Protocols
 
 state = INIT  # initial state for the application
 has_requested_messages = False  # history of the next conversation will need to be downloaded and printed
@@ -20,11 +20,15 @@ class ChatManager:
 	'''
 	Class responsible for driving the application
 	'''
-	def __init__(self, user_name="", password="", public_key=""):
+	def __init__(self, user_name="", password="", public_key="", private_key="", certificate=""):
 		'''
 		Constructor
 		:param user_name: user name of the current user
 		:param password: password of the current user
+		:param public_key:
+		:param private_key:
+		:param certificate:
+
 		:return: instance
 		'''
 		self.cookie = ""  # cookie, the result of successful login, has to be included in all requests to the server
@@ -34,9 +38,14 @@ class ChatManager:
 		self.get_msgs_thread = Thread(
 			target=self.get_messages_of_conversation
 		)  # thread, retrieves messages from the server
+
+		# private credentials saved
 		self.user_name = user_name  # user name of the current user
 		self.password = password  # password of the current user
-		self.public_key = public_key    
+		self.public_key = public_key  # public key of the current key
+		self.private_key = private_key # private key of the current user
+		self.certificate = certificate # certificate of the client ( MAY BE HARD CODED HERE... )
+
 		self.get_msgs_thread_started = False  # message retrieval has not been started
 
 	def login_user(self):
@@ -45,8 +54,9 @@ class ChatManager:
 		:return: None
 		'''
 		print ("Logging in...")
-		# create JSON document of user credentials
-		user_data = json.dumps({
+
+		# create JSON document of user private credentials
+		user_private_credentials = json.dumps({
 			"user_name": self.user_name,
 			"password": self.password,
 			"public_key": self.public_key,
@@ -54,14 +64,18 @@ class ChatManager:
 			"certificate": self.certificate
 		})
 
-		user_data = DFC.loginProtocol( login_data=user_data )
+		# create JSON document of user public credentials to server (Authentication Protocol Part 1)
+		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
+		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
 		
 		try:
-			# Send user credentials to the server
+			
+			# Send user credentials to the server (Authentication Protocol: Request Phase)
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/login", data=user_data)
 			r = urllib2.urlopen(req)
 			headers = r.info().headers
 			cookie_found = False
+
 			# Search for the cookie in the response headers
 			for header in headers:
 				if "Set-Cookie" in header:
@@ -73,32 +87,38 @@ class ChatManager:
 				print ("Login successful")
 			else:
 				# No cookie, login unsuccessful
+
+				# reset ChatManager attributes
 				self.user_name = ""
 				self.password = ""
 				self.public_key = ""
-				self.client_sig = ""
+				self.private_key = ""
 				self.certificate = ""
-				self.timestamp = ""
+
 				print ("Login unsuccessful, did not receive cookie from server")
 		except urllib2.HTTPError as e:
 			# HTTP error happened, the response status is not 200 (OK)
 			print ("Unable to log in, server returned HTTP", e.code, e.msg)
+
+			# reset ChatManager attributes
 			self.user_name = ""
 			self.password = ""
 			self.public_key = ""
-			self.client_sig = ""
+			self.private_key = ""
 			self.certificate = ""
-			self.timestamp = ""
+
 			self.is_logged_in = False
 		except urllib2.URLError as e:
 			# Other kinds of errors related to the network
 			print ("Unable to log in, reason:", e.message)
+
+			# reset ChatManager attributes
 			self.user_name = ""
 			self.password = ""
 			self.public_key = ""
-			self.client_sig = ""
+			self.private_key = ""
 			self.certificate = ""
-			self.timestamp = ""
+
 			self.is_logged_in = False
 
 	def create_conversation(self):

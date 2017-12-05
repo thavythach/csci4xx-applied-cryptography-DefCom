@@ -21,16 +21,21 @@ def main():
     credentials = {
         "user_name" : "",
         "password"  : "",
-        "public_key": ""
+        "public_key": "",
+        "private_key": "",
+        "certificate": ""
     }
-    with open(sys.argv[1]) as credentials_file:
+    with open(sys.argv[1]) as private_credentials_file:
         # Load credentials
-        credentials = json.load(credentials_file)
+        credentials = json.load( private_credentials_file )
     try:
         # Initialize chat client with the provided credentials
         c = ChatManager(user_name=credentials["user_name"],
                         password=credentials["password"],
-                        public_key=credentials["public_key"])
+                        public_key=credentials["public_key"],
+                        private_key=credentials["private_key"],
+                        certificate=credentials["certificate"]
+        )
     except KeyError:
         # In case the JSON file is malformed
         print ("Unable to get user credentials from JSON file")

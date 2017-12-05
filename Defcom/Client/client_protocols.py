@@ -3,10 +3,7 @@ from Crypto.PublicKey import RSA
 import json
 import unittest
 from datetime import timedelta, datetime
-
 from config import SERV_PUB_KEY
-
-SERV_KEY = RSA.generate(1024, e=65537) # TODO: SHOULD BE IN A GLOBAL CONFIG
 
 def AuthenticationProtocol( data ):
 	'''
@@ -32,7 +29,7 @@ def AuthenticationProtocol( data ):
 	sym_key = Generate32BitKey()
 
 	# import serv key
-	serv_pub = SERV_KEY.publickey()
+	serv_pub = SERV_PUB_KEY.publickey()
 
 	# encrypt the password
 	password = Encrypt( _buffer=plain_password, keystring=sym_key )
@@ -42,6 +39,7 @@ def AuthenticationProtocol( data ):
 
 	# encrypt sym_key with server's public key
 	enc_sym_key = serv_pub.encrypt( payload.encode('utf-8'), 32 )[0].decode('unicode-escape')
+	# print enc_sym_key
 
 	# generate the client signature 
 	client_sig = SignSignature( private_key=login_data['private_key'], msg=payload )
@@ -55,6 +53,8 @@ def AuthenticationProtocol( data ):
 			"client_sig": client_sig,
 			"certificate": login_data['certificate'] # TODO FIX ..... it's just 43 right now
 	})
+
+	print user_data
 
 	return user_data
 
@@ -86,14 +86,14 @@ class TestAuthenticationRequest( unittest.TestCase ):
 			self.json_data = outfile.read()
 			self.data = json.loads( self.json_data )
 		
-		for tag in self.data:
-			print (self.data[tag])
+		# for tag in self.data:
+			# print (self.data[tag])
 
 	def testAuthReq( self ):
 		# the line below should be sent to the server
 		creds = AuthenticationProtocol( data=self.json_data )
-		print creds
-		print "TODO: fix testcase lol -kek"
+		# print creds
+		# print "TODO: fix testcase lol -kek"
 		# self.assertTrue( creds['timestamp']  )
 		# print users_encrypted_credentials
 		

@@ -1,5 +1,7 @@
 import json
 import os
+from Crypto.PublicKey import RSA 
+
 
 def Generate32BitKey():
 	return os.urandom(32);
@@ -32,6 +34,17 @@ def create_new_user( username, plaintext_password ):
 		# encrypted_hash of the public_key and encrypted with the CA's private key
 	}
 
+def GenerateServerKeyPair():
+	keys = RSA.generate(1024)
+
+	privHandle = open('SERV_PRIV_KEY.pem', 'wb')
+	privHandle.write( keys.exportKey('PEM') )
+	privHandle.close()
+
+	pubHandle = open('SERV_PUB_KEY.pem', 'wb')
+	pubHandle.write(keys.publickey().exportKey('PEM') )
+	pubHandle.close()
+
 if __name__ == "__main__":
 	
 	user_pass = [
@@ -58,6 +71,7 @@ if __name__ == "__main__":
 	
 	with open('RegisteredUsers.py', 'w') as outfile:
 		outfile.write("\n".join(users))
+
 	
 	# TODO put in a user folder
 	# for idx in range(0,10):
