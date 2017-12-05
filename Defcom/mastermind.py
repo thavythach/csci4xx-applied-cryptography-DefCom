@@ -37,15 +37,14 @@ if __name__ == "__main__":
 		with open('user_' + user + ".json", 'w') as outfile:
 			json.dump(data, outfile)
 
-		users.append( 
-			{ data['user_name'],
-			 data['password'], 
-			 data['public_key']
-			 }
-		)
+		users.append(json.dumps({
+			"user_name": data['user_name'],
+			"password": data['password'],
+			"public_key": data['public_key']
+		}))
 	
 	with open('RegisteredUsers.py', 'w') as outfile:
-		outfile.write( users )
+		outfile.write("\n".join(users))
 	
 	# TODO put in a user folder
 	# for idx in range(0,10):
