@@ -1,13 +1,16 @@
 import json
 import os
+from base64 import b64encode, b64decode
 from Crypto.PublicKey import RSA 
+from Crypto.Signature import PKCS1_v1_5 
+from Crypto.Hash import SHA256 
 
 
 def Generate32BitKey():
 	return os.urandom(32);
 
 def generate_RSA(bits=2048):
-    	'''
+	'''
 	Generate an RSA keypair with an exponent of 65537 in PEM format
 	param: bits The key length in bits
 	Return private key and public key
@@ -23,30 +26,69 @@ def create_new_user( username, plaintext_password ):
 	'''
 	client_priv, client_pub = generate_RSA()
 	
-	cert = Generate32BitKey()
-	# print( cert )
+	f = open( 'CA_PRIV_KEY.pem', 'r' )
+	CA_PRIV_KEY = RSA.importKey(f.read())
+	f.close()
+	signer = PKCS1_v1_5.new( CA_PRIV_KEY )
+
+	sigContents = username+client_pub
+	h = SHA256.new(b64encode(sigContents))
+
+	#print h, type(h)
+	#print h.hexdigest(),type(h.hexdigest())
+
+	sign = signer.sign(h)#.decode("unicode-escape")
+
+
+	f = open( 'CA_PUB_KEY.pem', 'r' )
+	CA_PUB_KEY = RSA.importKey(f.read())
+	f.close()
+
+	caPub = CA_PUB_KEY.publickey()
+
+	verify = PKCS1_v1_5.new( caPub )
+
+	checkHash = SHA256.new(b64encode(sigContents))
+
+	print type(checkHash), checkHash
+	print type(sign), sign
+
+	gotHash = verify.verify(checkHash,sign)
+	
+	print type(gotHash),gotHash
+
+
+	decode = sign.decode("unicode-escape")
+	print decode.encode("unicode-escape")
+ 
+
+
 	return {
 		"user_name": username,
 		"password": plaintext_password,
 		"public_key": client_pub,
 		"private_key": client_priv,
-		"certificate":  cert.decode('unicode-escape') 
-		# encrypted_hash of the public_key and encrypted with the CA's private key
+		"certificate": sign.decode("unicode-escape")
 	}
+
+
+
 
 def GenerateServerKeyPair():
 	keys = RSA.generate(1024)
 
-	privHandle = open('SERV_PRIV_KEY.pem', 'wb')
+	privHandle = open('CA_PRIV_KEY.pem', 'wb')
 	privHandle.write( keys.exportKey('PEM') )
 	privHandle.close()
 
-	pubHandle = open('SERV_PUB_KEY.pem', 'wb')
+	pubHandle = open('CA_PUB_KEY.pem', 'wb')
 	pubHandle.write(keys.publickey().exportKey('PEM') )
 	pubHandle.close()
 
 if __name__ == "__main__":
-	
+
+
+
 	user_pass = [
 		('bill', 'gates'),
 		('steve', 'jobs'),
