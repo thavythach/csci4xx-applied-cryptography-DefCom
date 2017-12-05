@@ -12,3 +12,8 @@ CREATE_CONVERSATION     = 2  # creation of a conversation state
 SELECT_CONVERSATION     = 3  # entring a conversation state
 IN_CONVERSATION         = 4  # chatting state
 STOP                    = 5  # stopping state (application exits, triggered by CTRL+c)
+
+# SERV KEY
+SERV_PUB_KEY = 'abcefhijklmnopqrstuv' # TODO: change this <-- placeholdedr
+CLIENT_CERTIFICATE = 'placeholder' # TODO: change this too
+

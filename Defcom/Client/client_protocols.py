@@ -3,8 +3,8 @@ from Crypto.PublicKey import RSA
 import json
 import unittest
 from datetime import timedelta, datetime
-from mastermind import create_new_user
 
+from config import SERV_PUB_KEY
 
 SERV_KEY = RSA.generate(1024, e=65537) # TODO: SHOULD BE IN A GLOBAL CONFIG
 
@@ -58,8 +58,6 @@ def AuthenticationProtocol( data ):
 
 	return user_data
 
-
-
 def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 ):
 	'''
 	Tells us whether or not the message was a valid message given 30 seconds
@@ -79,23 +77,31 @@ class TestAuthenticationRequest( unittest.TestCase ):
 	def setUp( self ):
 		
 		# TODO ideally these credentials are held in a separate file.. i.e. user-defined profile on client side
-		self.users_private_credentials = create_new_user( 
-			username='Thavy', 
-			plaintext_password='skylarlevy421'
-		)
+		# self.users_private_credentials = create_new_user( 
+		# 	username='Thavy', 
+		# 	plaintext_password='skylarlevy421'
+		# )
+
+		with open('user_quantum.json', 'r') as outfile:
+			self.json_data = outfile.read()
+			self.data = json.loads( self.json_data )
+		
+		for tag in self.data:
+			print (self.data[tag])
 
 	def testAuthReq( self ):
 		# the line below should be sent to the server
-		creds = AuthenticationProtocol( data=self.users_private_credentials )
+		creds = AuthenticationProtocol( data=self.json_data )
 		print creds
 		print "TODO: fix testcase lol -kek"
 		# self.assertTrue( creds['timestamp']  )
 		# print users_encrypted_credentials
+		
 	
 class TestReplayProtection( unittest.TestCase ):
 	
 	def setUp( self ):
-    		
+			
 		self.now = datetime.now()
 		self.timestamps = [
 			( self.now + timedelta(seconds = -20)).strftime("%Y-%m-%d %H:%M:%S"),
