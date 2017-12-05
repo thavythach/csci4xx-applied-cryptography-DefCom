@@ -32,6 +32,9 @@ def AuthenticationProtocol( data ):
 	# encrypt the password
 	password = Encrypt( _buffer=plain_password, keystring=sym_key )
 
+# produce timestamp
+	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+	
 	# what's the young payload (signature msg)
 	payload = timestamp+"|"+login_data["user_name"]+"|"+password
 
