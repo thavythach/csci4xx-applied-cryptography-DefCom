@@ -3,6 +3,7 @@ from Crypto.PublicKey import RSA
 import json
 import unittest
 from datetime import timedelta, datetime
+
 from config import SERV_PUB_KEY
 
 def AuthenticationProtocol( data ):
@@ -18,9 +19,6 @@ def AuthenticationProtocol( data ):
 
 	# turn into parseable data
 	login_data = json.loads( data )
-	
-	# produce a timestamp
-	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 	# retrieve password
 	plain_password = login_data["password"]
@@ -39,22 +37,18 @@ def AuthenticationProtocol( data ):
 
 	# encrypt sym_key with server's public key
 	enc_sym_key = serv_pub.encrypt( payload.encode('utf-8'), 32 )[0].decode('unicode-escape')
-	# print enc_sym_key
 
 	# generate the client signature 
 	client_sig = SignSignature( private_key=login_data['private_key'], msg=payload )
 	
 	user_data = json.dumps({
-			"timestamp": timestamp,
+			"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 			"user_name": login_data["user_name"],
-			"password": password,
 			"public_key": login_data["public_key"],
 			"enc_sym_key": enc_sym_key,
 			"client_sig": client_sig,
 			"certificate": login_data['certificate'] # TODO FIX ..... it's just 43 right now
 	})
-
-	print user_data
 
 	return user_data
 

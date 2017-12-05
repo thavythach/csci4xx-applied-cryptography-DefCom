@@ -1,7 +1,9 @@
 import copy
 from RegisteredUsers import RegisteredUsers
 from Conversation import Conversation
-from ... import DefComCryptography as DFC 
+
+from server_protocols import AuthenticationConfirmation
+from DefComCryptography import Decrypt
 
 class ChatManager:
     def __init__(self):
@@ -11,7 +13,7 @@ class ChatManager:
         self.active_users = []
         self.active_conversations = []
 
-    def login_user(self, user_name, password, public_key, timestamp, certificate, client_sig):
+    def login_user(self, user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig):
         """
         Logs in a user.
         :param user_name: the user name of the user.
@@ -19,17 +21,14 @@ class ChatManager:
         :return: the user object representing the logged in user.
         """
 
-        # TODO figure out how this is generated or stored on the server
-        symmetric_key = '0123456789abcdefghijklmnopqrstwv' 
-        
-         # TODO import DefCom Cryptography
-        ver_check = DFC.VerifiySignature( public_key, client_sig, msg=timestamp+"|"+user_name+"|"+password )
+        sym_key, boolReplay, certGood, ver_check, pw = AuthenticationConfirmation(
+            user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig
+        )
 
         # search for the user among the registered users.
         current_user = None
         for user in RegisteredUsers:
-            # TODO should we just store passwords as plaintext on the server? 
-            if ver_check and user["user_name"] == user_name and user["password"] == DFC.Decrypt(password, symmetric_key):
+            if ver_check and !boolReplay and certGood and user["user_name"] == user_name and user["password"] == Decrypt(pw, sym_key):
                 current_user = copy.deepcopy(user)
                 break
         if current_user:

@@ -1,10 +1,34 @@
-from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignSignature, generate_RSA
+from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignSignature, VerifiySignature, generate_RSA
 from Crypto.PublicKey import RSA 
 import json
 import unittest
 from datetime import timedelta, datetime
 
+from config import SERV_PRIV_KEY, SERV_PUB_KEY
 
+
+def AuthenticationConfirmation( user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig ):
+	'''
+	Returns 5-tuple of symmetric-key, if replay attack was detected, certificate was signed correctly, signature signed perfectly, and encrypted password.
+
+	:params...:
+	'''
+	sym_key = None
+	boolReplay = detect_replay_protection( timestamp=timestamp, timestamp_against=now_timestamp ) 
+	goodCert = None
+	
+	# if true decompose msg, else return False
+	msg = timestamp + '|' + public_key + '|' + password
+	ver_check = VerifiySignature( client_sig, msg )
+	
+	if ver_check:
+    	
+
+	pw = None
+
+	return ( sym_key, boolReplay, goodCert, ver_check, pw )
+
+'''
 def AuthenticationConfrimation( user_data ):
 
 	user_creds = json.loads(user_data)
@@ -29,7 +53,7 @@ def AuthenticationConfrimation( user_data ):
 	
 
 
-
+'''
 
 
 def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 ):

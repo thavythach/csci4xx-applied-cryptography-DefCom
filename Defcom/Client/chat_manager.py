@@ -67,6 +67,9 @@ class ChatManager:
 		# create JSON document of user public credentials to server (Authentication Protocol Part 1)
 		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
 		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
+
+		data = json.loads( user_data )
+		for d in data: print data[d]
 		
 		try:
 			

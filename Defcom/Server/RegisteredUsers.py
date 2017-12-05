@@ -1,16 +1,6 @@
-
-
-'''
-Database of Register Users File...
-TODO: require password to be hashed and salted (maybe)
-
-REAL TODO: password might be in plaintext
-REAL TODO: public key, private key needs to be generated.
-'''
-
-
-RegisteredUsers = [
-    {"user_name": "Elon", "password": "Musk", "public_key": "1234"},  
-    {"user_name": "Bill", "password": "Gates", "public_key": "4567"},
-    {"user_name": "Steve", "password": "Jobs", "public_key": "7890"}
-]
+RegisteredUsers = [{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0eszn30WdgV0zZqyzeLp\nav24uu5mmZwlTK+I/XDObRX5sA2kZwl7WNkOhsXpcBR/1SBPdP3PQCYEB4ZZZvwL\nemTxZvF5FIdmOAB4HxWSts48t4ycDkLFm6EvlGSXerFmzewoT3fANcZnwGNTfhRV\nka2NkEWVt1EojhN1GzODfKsO/RqhoNi1b1PrieAPGpMLb4Hdh9o8RAWNNI8QwyJJ\nDSQA/xsZdgh73weMce9eDvn2OSoENzuzpTDd98PMp28HoabOexhOSA8v2GL0irKC\nuDOmnybLHfZ572JUE6pEGB1C3zm+uh09UwCh0wgxIbH0DN7/0kf4ehoSWd+SWjIg\npQIDAQAB\n-----END PUBLIC KEY-----", "password": "gates", "user_name": "bill"},
+{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj/2+OrEDlub2oK2tTHSf\nrHiQjZsA0jax8BHyTBCYwCYWqO/oTsDALvEoUL8+wMp3U22/Du5bfVgpndNWLe74\nypxpEO993n0jIMpeKKyWMHGkKAYsx+DfM8QWhIJ9d+GMnD0P26al1ermuCuzjn+U\nNLiz6IxSHxV8XrnTypKYPLLyJq6JOc6dgfqQ3BkndrS6nBMOfCgvIU3MtxChOJDU\nFvf9O+1ayRc7Uo2IoEffe+G+pTCLm+SFzjOLQGNpkvuf0ePkZtebBebXDh2B364t\ndDiTGguu/SOUMn683zFfPpjCI7Pz2Z0fjVBemXb+xAzmohNxHdGHXd2RpngVvqIO\nVQIDAQAB\n-----END PUBLIC KEY-----", "password": "jobs", "user_name": "steve"},
+{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsxKUpjKS6OhDhoxsgvBX\np8BuOce5Ej65UlYl5VbWIu/L6Bm6m75eBoNPWJgD109uxVu3syIfy8LuFUfxnRDl\naaTx+uPJsgUza76xTJqSgSePWIQHa/jyRRg2ZeH4gJ2lqLu8MTZA1W8xREzqk7jR\nDkOha4G/rKJwqb0j3FlapraYwKK1DBYmi4/bKWlU0dCRI1ElKE71Tp4MbGqDB2vc\noScJI4FQ78OjxyIAHT1994qDIrvn9OLTAV6fhyYixdAJIS84EKjP3ohhNfE/Gn12\nTP3izOFH3VIrzbMPErcMfeIQWAUiCpuyBqkyISTraYXxRKAwNYxtNNvCQ+dHydAb\nLQIDAQAB\n-----END PUBLIC KEY-----", "password": "levey", "user_name": "skylar"},
+{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApbcOpzcG6876kdlGpT03\nUmcuyNE+7LgEG0BctVFOpGd2gSp7utlMtlloTliqBfHAOzWA5AWMQLfpr0lbtc8T\nkyE8SZkwx9XdYHM+PGTQLuC5X4ENRU0xUyqfyrr4I2IkYVdnobsuGvyhshNe6BSV\nsGiGbeVLfK1f4hCU8ufV7bWD+xFgOi3pQSVJFQt1N5BuQ8BxP2+cjeqcNEzREz9o\nCWcVx3UOgBE34iluXPX21I40bJ83e2zV5fb0cOZa/YDNekVWlRLA+GSY0KChs0q7\nw6UyHShTNm2NF0Jwk8aKTenzfWfAsJsD7kQ7nEiF+AeCBswc2qxfiPjcEzVMT4r6\n3wIDAQAB\n-----END PUBLIC KEY-----", "password": "thach", "user_name": "thavy"},
+{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx5x4PZFWKphsyv7P1PiZ\nxq+FePWnd7HmVlKMZE6NYxAahRWtfnbzKbm5G6eSic2SUhsGeWxLEfzrk+eOTvL8\nOrDNfyvdYnWIcWZdA7ArHS3IMkULARkBaouF81BqVz/8rbxaEw0DI7Ve3yl7LwBQ\n2pdrphbN9VsONgWIDhK3mZ2PLYvMUwC9j3rY/pLcNG4wbkWdB1FYsKwAVE4BGTST\nWgsJH9Dgp7XMjX7wWEJKzDrWzyW7T8qZx2CK7n97R0KjOJ+YzhHuh+9PtKFvnYdR\nu1/GZOVKyFNdXA6J5Y24+ygMHFHOVpmcxSusnevMgZk789z637O6E+8h0o4cH+bW\nIQIDAQAB\n-----END PUBLIC KEY-----", "password": "cryptography", "user_name": "classical"},
+{"public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA33RlXnfdJdZWPQR1ahk9\n/g65eiqXnMFu9YhaHRVaNy5hFik9xVkdsFAlFIFwNiE87JYR2zSwDr59XvgjeWUI\np3bprqkqFx2m05I9akN9ruveUXfHnSabZsC1x1gyGfF+xaHpNlerpokEmHTEsyBN\nCbl4AUt+mlnZKIqKdtTEhGxvIHCLXdlynqunuxuztZcdwUxxqIJs36swDCSobmCb\npIz2urCLsm94PcvfcMqsr96rFlU1VZt4I92+LBzh+/csvcUIgigN1oBdYuQkNtjl\n1VOpNcGsc9E2CFpeTFigSMTUsNCEdTnSNU2WNkbv/gS9teKCFpL3gyZRKprnR61N\nuQIDAQAB\n-----END PUBLIC KEY-----", "password": "cryptography", "user_name": "quantum"}]

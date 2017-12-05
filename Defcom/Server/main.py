@@ -1,6 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import json
+from datetime import datetime
 
 from ChatManager import ChatManager
 
@@ -84,14 +85,25 @@ class LoginHandler(JsonHandler):
         Upon successful login, the user is added to the active users list.
         Further user authentication happens through cookies.
         """
-        user_name = self.request.arguments['user_name']
-        password = self.request.arguments['password']
-        public_key = self.request.arguments['public_key']
-        timestamp = self.request.arguments['timestamp']
-        certificate = self.request.arguments['certificate']
-        client_sig = self.request.arguments['client_sig']
+        user_name = self.request.arguments['user_name'] # username from user
+        password = self.request.arguments['password'] # encrypted password from user
+        public_key = self.request.arguments['public_key'] # public key from user
+        timestamp = self.request.arguments['timestamp'] # timestamp given at time
+        now_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # timestamp of server received
+        enc_sym_key = self.request.arguments['enc_sym_key'] # encrypted symmetric key using server's public key
+        client_sig = self.request.arguments['client_sig'] # client_sig of your dreams
+        certificate = self.request.arguments['certificate'] # dreams of your parents
 
-        current_user = cm.login_user(user_name, password, public_key, timestamp, certificate, client_sig)
+        current_user = cm.login_user( 
+            user_name=user_name, 
+            password=password,
+            public_key=public_key, 
+            timestamp=timestamp, 
+            now_timestamp=now_timestamp, 
+            enc_sym_key=enc_sym_key, 
+            certificate=certificate, 
+            client_sig=client_sig
+        )
 
         if current_user:
             if not self.get_secure_cookie(Constants.COOKIE_NAME):
