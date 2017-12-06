@@ -42,14 +42,16 @@ def MessageMaker(privateKey, message):
 	'''
 
 	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 	signature = SignWithPrivateKey(privateKey, timestamp+message)
 
-	full_message = json.dumps({
-			"timestamp": timestamp,
-			"message" : message,
-			"signature": signature
-	})
+	full_message = []
+	message_item = dict()
+
+	message_item['timestamp'] = timestamp
+	message_item['message'] = message
+	message_item['signature'] = signature
+	full_message.append(message_item)
+
 	return full_message
 
 

@@ -1,4 +1,4 @@
-from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignWithPrivateKey, generate_RSA
+from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignWithPrivateKey, VerifiySignedWithPublicKey, generate_RSA
 from Crypto.PublicKey import RSA 
 import json
 import unittest
@@ -15,7 +15,7 @@ def ResponseChecker( response ):
 
 	'''
 
-	json_rsp = json.loads(response)
+	json_rsp = json.loads(response)[0]
 
 	now_timestamp =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -101,7 +101,8 @@ def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 
 	'''
 
 	dt_obj = datetime.strptime( timestamp, '%Y-%m-%d %H:%M:%S' ) 
-	if dt_obj <= timestamp_against-timedelta( seconds=-t ):
+	dta_obj = datetime.strptime( timestamp_against, '%Y-%m-%d %H:%M:%S' ) 
+	if dt_obj <= dta_obj-timedelta( seconds=-t ):
 		return True
 	return False
 

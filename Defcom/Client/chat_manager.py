@@ -74,14 +74,6 @@ class ChatManager:
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/login", data=user_data)
 			r = urllib2.urlopen(req)
 			headers = r.info().headers
-
-			confirmation_response = json.loads(r.read())
-			# confirmation_response["now_timestamp"] =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-			# responsOkay = AuthenticationProtocolResponseParse(confirmation_response)
-			# if responsOkay != None:
-			# 	print responsOkay
-
-			
 			cookie_found = False
 
 			# Search for the cookie in the response headers
@@ -92,19 +84,13 @@ class ChatManager:
 			if cookie_found == True:
 				# Cookie found, login successful
 				self.is_logged_in = True
-				
-				from DefComCryptography import VerifiySignedWithPublicKey
-				from config import SERV_PUB_KEY
 
-				confirmation_response = confirmation_response[0]
-				VerifiySignedWithPublicKey( 
-					SERV_PUB_KEY, 
-					confirmation_response['signature'],
-					confirmation_response['timestamp']+confirmation_response['message'] 
-					)
-
-				print confirmation_response['message']
-				print 
+				confirmation_response = r.read()
+				responsOkay = Protocols.ResponseChecker(confirmation_response)
+				if responsOkay == "":
+					self.is_logged_in = False
+				print responsOkay
+	
 			else:
 				# No cookie, login unsuccessful
 

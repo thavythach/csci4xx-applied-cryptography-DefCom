@@ -6,6 +6,7 @@ from datetime import datetime
 from ChatManager import ChatManager
 from DefComCryptography import SignWithPrivateKey
 from config import SERV_PRIV_KEY
+import server_protocols as Protocols
 
 from base64 import b64encode, b64decode
 
@@ -116,15 +117,9 @@ class LoginHandler(JsonHandler):
 			self.set_status(200)
 			#  Set JSON response
 			print( "Sending Sig Object..." )
-			answer = []
-			new_answer_item = dict()
-			timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-			resp = "You have been Authenticated."
-			new_answer_item['timestamp'] = timestamp
-			new_answer_item['message'] = resp
-			new_answer_item['signature'] = SignWithPrivateKey( SERV_PRIV_KEY, timestamp+resp )
-			answer.append(new_answer_item)
 
+			answer = Protocols.MessageMaker(SERV_PRIV_KEY, "You have been Authenticated.")
+			
 			self.response = answer
 			self.write_json()
 			self.finish()
