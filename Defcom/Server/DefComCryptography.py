@@ -103,13 +103,13 @@ def SignWithPrivateKey( private_key, msg ):
 	signer = PKCS1_v1_5.new( RSAkey )
 	
 	# create digest object
-	h = SHA256.new(msg)
+	h = SHA256.new( msg )
 	
 	# sign the digest
 	signature = signer.sign( h )
 	
 	# return 
-	return b64encode(sign)
+	return b64encode(signature)
 
 
 def VerifiySignedWithPublicKey( public_key, signature, msg ):
@@ -126,7 +126,7 @@ def VerifiySignedWithPublicKey( public_key, signature, msg ):
 
 	digest = SHA256.new(msg) 
 
-	if signer.verify( digest, b64decode(signature)  ):
+	if signer.verify( digest, b64decode(signature) ):
 		return True
 	return False
 

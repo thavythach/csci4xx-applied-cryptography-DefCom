@@ -20,5 +20,3 @@ f = open( 'SERV_PUB_KEY.pem', 'r' )
 SERV_PUB_KEY = RSA.importKey(f.read())
 f.close()
 
-
-CLIENT_CERTIFICATE = 'placeholder' # TODO: change this too

@@ -23,9 +23,8 @@ def AuthenticationProtocol( data ):
 
 	#encrypt password with server public key
 	plain_password = login_data["password"]
-	serv_pub = SERV_PUB_KEY.publickey()
-	enc_password = b64encode(serv_pub.encrypt(str(plain_password),32)[0])
-	#print "plain password:", plain_password, "\nencrypted password:",password
+	enc_password = b64encode(SERV_PUB_KEY.encrypt(str(plain_password),32)[0])
+	print "plain password:", plain_password, "\nencrypted password:",enc_password
 
 	# produce timestamp
 	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

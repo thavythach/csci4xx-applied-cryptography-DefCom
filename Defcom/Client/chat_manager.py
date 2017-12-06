@@ -73,12 +73,9 @@ class ChatManager:
 			
 			# Send user credentials to the server (Authentication Protocol: Request Phase)
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/login", data=user_data)
-			
-			print req, "1"
 			r = urllib2.urlopen(req)
-			print r,"1"
 			headers = r.info().headers
-			print headers,"1"
+
 			cookie_found = False
 
 			# Search for the cookie in the response headers
@@ -103,9 +100,7 @@ class ChatManager:
 				print ("Login unsuccessful, did not receive cookie from server")
 		except urllib2.HTTPError as e:
 			# HTTP error happened, the response status is not 200 (OK)
-			print "hello2"
 			print ("Unable to log in, server returned HTTP", e.code, e.msg)
-			print "hello3"
 
 			# reset ChatManager attributes
 			self.user_name = ""

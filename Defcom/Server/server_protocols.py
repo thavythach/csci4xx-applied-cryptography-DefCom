@@ -1,8 +1,9 @@
 from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignWithPrivateKey, VerifiySignedWithPublicKey
+from Crypto.PublicKey import RSA
 import json
 import unittest
 from datetime import timedelta, datetime
-from Crypto.PublicKey import RSA 
+from base64 import b64encode, b64decode 
 
 from config import SERV_PRIV_KEY, SERV_PUB_KEY
 
@@ -27,22 +28,23 @@ def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_passwor
 	f.close()
 
 	#check the certificate to make sure the public key is legitimate
-	# cert_check = VerifiySignedWithPublicKey( CA_PUB_KEY, certificate, user_name+public_key )
-	# if not (cert_check):
-	# 	print "The certificate verification failed, the public key may not be legitimate"
-	# 	return
+	cert_check = VerifiySignedWithPublicKey( CA_PUB_KEY, certificate, user_name+public_key )
+	if not (cert_check):
+		print "The certificate verification failed, the public key may not be legitimate"
+		return
+	print "certificate verified"
 
-	#check the signature with teh verified public key
-	# sig_check = VerifiySignedWithPublicKey( public_key, client_sig, timestamp+user_name+enc_password )
-	# if not (sig_check):
-	# 	print "The signature verification failed, the message may have been tampered with"
-	# 	return
+	#check the signature with the verified public key
+	sig_check = VerifiySignedWithPublicKey( public_key, client_sig, timestamp+user_name+enc_password )
+	if not (sig_check):
+		print "The signature verification failed, the message may have been tampered with"
+		return
+	print "signature verified"
 
 	#decode password and then look for user in the database
-	# password = SERV_PRIV_KEY.decrypt( enc_password )
-	# print password
-
-	password = "levey"
+	#print "recieved enc_password: ", enc_password
+	password = SERV_PRIV_KEY.decrypt( b64decode(enc_password) )
+	print "password decrypted"
 
 	return password
 

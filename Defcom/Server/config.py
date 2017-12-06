@@ -6,7 +6,7 @@ SERV_PRIV_KEY = RSA.importKey(f.read())
 f.close()
 
 f = open( 'SERV_PUB_KEY.pem', 'r' )
-SERV_PUB_KEY = RSA.importKey(f.read())
+SERV_PUB_KEY = RSA.importKey(f.read()).publickey()
 f.close()
 
 print SERV_PRIV_KEY, SERV_PUB_KEY
