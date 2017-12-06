@@ -1,0 +1,4 @@
+*.pyc 
+Defcom/Server/*.pyc
+Defcom/Client/*.pyc
+Defcom/*.pyc
