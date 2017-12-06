@@ -7,22 +7,46 @@ from base64 import b64encode, b64decode
 
 from config import SERV_PUB_KEY
 
-def AuthenticationProtocolResponseParse( data ):
+def ResponseChecker( response ):
 
-	timestamp_check = detect_replay_protection( timestamp=data["timestamp"], timestamp_against=data["now_timestamp"] )
+	'''
+	checks the validity of a simple message that consists of a
+	dictionary with 3 elements: timestamp | message | signature
+
+	'''
+
+	now_timestamp =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+	timestamp_check = detect_replay_protection( timestamp=response["timestamp"], timestamp_against=now_timestamp )
 	if not (timestamp_check):
 		print "The timestamp is expired, this message might be a replay"
-		return
+		return ""
 
-	sig_check = VerifiySignedWithPublicKey( SERV_PUB_KEY, data["signature"], data["timestamp"]+data["message"] )
+	sig_check = VerifiySignedWithPublicKey( SERV_PUB_KEY, response["signature"], response["timestamp"]+response["message"] )
 	if not (sig_check):
 		print "The signature verification failed, the message may have been tampered with"
-		return
+		return ""
 
-	return data["message"]
+	return response["message"]
 
 
+def MessageMaker(privateKey, message):
+	'''
+	makes a simple message that consists of a
+	dictionary with 3 elements: timestamp | message | signature
 
+	'''
+
+	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+	signature = SignWithPrivateKey(privateKey, timestamp+message)
+
+	full_message = json.dumps({
+			"timestamp": timestamp,
+			"message" : message,
+			"signature": signature
+	})
+	return full_message
 
 
 
