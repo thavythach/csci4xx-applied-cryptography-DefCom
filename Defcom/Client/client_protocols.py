@@ -7,6 +7,25 @@ from base64 import b64encode, b64decode
 
 from config import SERV_PUB_KEY
 
+def AuthenticationProtocolResponseParse( data ):
+
+	timestamp_check = detect_replay_protection( timestamp=data["timestamp"], timestamp_against=data["now_timestamp"] )
+	if not (timestamp_check):
+		print "The timestamp is expired, this message might be a replay"
+		return
+
+	sig_check = VerifiySignedWithPublicKey( SERV_PUB_KEY, data["signature"], data["timestamp"]+data["message"] )
+	if not (sig_check):
+		print "The signature verification failed, the message may have been tampered with"
+		return
+
+	return data["message"]
+
+
+
+
+
+
 def AuthenticationProtocol( data ):
 	'''
 	Authentication Protocol to produce a encrypted set of data based of the username, plaintext password, and user's public key on the client side.
@@ -24,7 +43,7 @@ def AuthenticationProtocol( data ):
 	#encrypt password with server public key
 	plain_password = login_data["password"]
 	enc_password = b64encode(SERV_PUB_KEY.encrypt(str(plain_password),32)[0])
-	print "plain password:", plain_password, "\nencrypted password:",enc_password
+	#print "plain password:", plain_password, "\nencrypted password:",enc_password
 
 	# produce timestamp
 	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

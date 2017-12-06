@@ -70,11 +70,15 @@ class ChatManager:
 		#for d in data: print data[d]
 		
 		try:
-			
 			# Send user credentials to the server (Authentication Protocol: Request Phase)
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/login", data=user_data)
 			r = urllib2.urlopen(req)
-			headers = r.info().headers
+
+			confirmation_response = json.loads(r.read())
+			confirmation_response["now_timestamp"] =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+			responsOkay = AuthenticationProtocolResponseParse(confirmation_response)
+			if responsOkay != none:
+				print responsOkay
 
 			cookie_found = False
 
