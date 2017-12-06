@@ -17,6 +17,6 @@ STOP                    = 5  # stopping state (application exits, triggered by C
 
 # SERV KEY
 f = open( 'SERV_PUB_KEY.pem', 'r' )
-SERV_PUB_KEY = RSA.importKey(f.read())
+SERV_PUB_KEY = f.read()
 f.close()
 

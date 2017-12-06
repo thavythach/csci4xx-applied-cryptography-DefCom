@@ -43,7 +43,8 @@ def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_passwor
 
 	#decode password and then look for user in the database
 	#print "recieved enc_password: ", enc_password
-	password = SERV_PRIV_KEY.decrypt( b64decode(enc_password) )
+
+	password = RSA.importKey(SERV_PRIV_KEY).decrypt( b64decode(enc_password) )
 	print "password decrypted"
 
 	return password

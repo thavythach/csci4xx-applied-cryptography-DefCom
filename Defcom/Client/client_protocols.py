@@ -42,7 +42,7 @@ def AuthenticationProtocol( data ):
 
 	#encrypt password with server public key
 	plain_password = login_data["password"]
-	enc_password = b64encode(SERV_PUB_KEY.encrypt(str(plain_password),32)[0])
+	enc_password = b64encode( RSA.importKey(SERV_PUB_KEY).encrypt(str(plain_password),32)[0])
 	#print "plain password:", plain_password, "\nencrypted password:",enc_password
 
 	# produce timestamp

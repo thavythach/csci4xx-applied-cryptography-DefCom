@@ -44,6 +44,7 @@ class ChatManager:
 
 		return current_user
 
+
 	def get_all_active_users(self):
 		"""
 		:return: All active users.
