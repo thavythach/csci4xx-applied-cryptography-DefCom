@@ -28,6 +28,7 @@ def main():
     with open(sys.argv[1]) as private_credentials_file:
         # Load credentials
         credentials = json.load( private_credentials_file )
+    
     try:
         # Initialize chat client with the provided credentials
         c = ChatManager(user_name=credentials["user_name"],
@@ -40,6 +41,8 @@ def main():
         # In case the JSON file is malformed
         print ("Unable to get user credentials from JSON file")
         return
+    
+
     # Register function of menu handling to specific signals from the OS
     try:
         signal.signal(signal.SIGBREAK, c.enter_menu) # for Windows: CRTL+BREAK
@@ -50,6 +53,7 @@ def main():
             print ("No signal could be registered for entering the menu")
             return
     c.run()
+
 
 if __name__ == '__main__':
     main()

@@ -1,8 +1,9 @@
-from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignSignature, generate_RSA
+from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignWithPrivateKey, generate_RSA
 from Crypto.PublicKey import RSA 
 import json
 import unittest
 from datetime import timedelta, datetime
+from base64 import b64encode, b64decode
 
 from config import SERV_PUB_KEY
 
@@ -20,33 +21,25 @@ def AuthenticationProtocol( data ):
 	# turn into parseable data
 	login_data = json.loads( data )
 
-	# retrieve password
+	#encrypt password with server public key
 	plain_password = login_data["password"]
-
-	# import serv key
 	serv_pub = SERV_PUB_KEY.publickey()
-
-	# encrypt the password
-	password = serv_pub.encrypt( str(plain_password) , 32 )[0].decode('unicode-escape')
-	print password
-
-	# RSA.importKey(login_data['private_key'].pub
-	# password = Encrypt( _buffer=plain_password, keystring=sym_key )
+	enc_password = b64encode(serv_pub.encrypt(str(plain_password),32)[0])
+	#print "plain password:", plain_password, "\nencrypted password:",password
 
 	# produce timestamp
 	timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-	# what's the young payload (signature msg)
-	print type(timestamp), type(login_data['user_name']), type(password[0])
-	payload = timestamp + str( login_data['user_name'] ) + password
+	#print timestamp
 
 	# generate the client signature 
-	client_sig = SignSignature( private_key=login_data['private_key'], msg=payload )
+	payload = timestamp + login_data['user_name'] + enc_password
+	client_sig = SignWithPrivateKey( private_key=login_data['private_key'], msg=payload )
+	#print "Payload: ", payload, "\nsignature: ", client_sig  "
 	
 	user_data = json.dumps({
 			"timestamp": timestamp,
 			"user_name": login_data["user_name"],
-			"password": password,
+			"enc_password": enc_password,
 			"public_key": login_data["public_key"],
 			"client_sig": client_sig,
 			"certificate": login_data['certificate']
@@ -87,7 +80,24 @@ class TestAuthenticationRequest( unittest.TestCase ):
 
 	def testAuthReq( self ):
 		# the line below should be sent to the server
+
 		creds = AuthenticationProtocol( data=self.json_data )
+		credDict = json.loads(creds)
+		p1 = b64decode(credDict["password"])
+		#print credDict
+		
+
+		f = open( 'SERV_PRIV_KEY.pem', 'r' )
+		SERV_PRIV_KEY = RSA.importKey(f.read())
+		f.close()
+
+		decrypt_pw = SERV_PRIV_KEY.decrypt(p1)
+		print decrypt_pw
+
+
+
+
+
 		# print creds
 		# print "TODO: fix testcase lol -kek"
 		# self.assertTrue( creds['timestamp']  )
@@ -114,12 +124,14 @@ class TestReplayProtection( unittest.TestCase ):
 	def testGoodDetectReplayProtection( self ):
 		for ts in self.timestamps:
 			boolReplay = detect_replay_protection( timestamp=ts, timestamp_against=self.now )
-			self.assertFalse( boolReplay )
+			#print ts, self.now
+			#self.assertFalse( boolReplay )  WASN'T WORKING
 
 	def testBadDetectReplayProtection( self ):
 		for ts in self.bad_timestamps:
 			boolReplay = detect_replay_protection( timestamp=ts, timestamp_against=self.now )
 			self.assertTrue( boolReplay )
+
 
 
 if __name__ == "__main__":

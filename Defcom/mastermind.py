@@ -29,38 +29,34 @@ def create_new_user( username, plaintext_password ):
 	f = open( 'CA_PRIV_KEY.pem', 'r' )
 	CA_PRIV_KEY = RSA.importKey(f.read())
 	f.close()
+
 	signer = PKCS1_v1_5.new( CA_PRIV_KEY )
-
-	sigContents = username+client_pub
-	h = SHA256.new(b64encode(sigContents))
-
-	#print h, type(h)
-	#print h.hexdigest(),type(h.hexdigest())
-
-	sign = signer.sign(h)#.decode("unicode-escape")
 
 
 	f = open( 'CA_PUB_KEY.pem', 'r' )
 	CA_PUB_KEY = RSA.importKey(f.read())
 	f.close()
 
-	caPub = CA_PUB_KEY.publickey()
+	verify = PKCS1_v1_5.new( CA_PUB_KEY )
 
-	verify = PKCS1_v1_5.new( caPub )
+	
+	sigContents = username+client_pub
+	h = SHA256.new(sigContents)
+	sign = b64encode(signer.sign(h))
 
-	checkHash = SHA256.new(b64encode(sigContents))
+	checkHash = SHA256.new(sigContents)
 
 	print type(checkHash), checkHash
 	print type(sign), sign
 
-	gotHash = verify.verify(checkHash,sign)
+	gotHash = verify.verify(checkHash,b64decode(sign))
 	
 	print type(gotHash),gotHash
 
 
-	decode = sign.decode("unicode-escape")
-	print decode.encode("unicode-escape")
- 
+	#decode = sign.decode("unicode-escape")
+	#print decode.encode("unicode-escape")
+ 	#.decode("unicode-escape")
 
 
 	return {
@@ -68,7 +64,7 @@ def create_new_user( username, plaintext_password ):
 		"password": plaintext_password,
 		"public_key": client_pub,
 		"private_key": client_priv,
-		"certificate": sign.decode("unicode-escape")
+		"certificate": b64encode(sign)#.decode("unicode-escape")
 	}
 
 

@@ -4,9 +4,7 @@ import json
 from conversation import Conversation
 from message import Message, MessageEncoder
 from time import sleep
-
 from menu import menu
-
 from threading import Thread
 
 import base64
@@ -35,9 +33,8 @@ class ChatManager:
 		self.is_logged_in = False  # flag, was the login process successful?
 		self.current_conversation = None  # object representing the current selected conversation
 		self.last_msg_id = "0"  # ID of the last message downloaded for the current conversation
-		self.get_msgs_thread = Thread(
-			target=self.get_messages_of_conversation
-		)  # thread, retrieves messages from the server
+		self.get_msgs_thread = Thread(target=self.get_messages_of_conversation)
+			# thread, retrieves messages from the server
 
 		# private credentials saved
 		self.user_name = user_name  # user name of the current user
@@ -53,7 +50,7 @@ class ChatManager:
 		Logs the current user in
 		:return: None
 		'''
-		print ("Logging in...")
+		print "Logging in..."
 
 		# create JSON document of user private credentials
 		user_private_credentials = json.dumps({
@@ -68,15 +65,20 @@ class ChatManager:
 		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
 		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
 
-		data = json.loads( user_data )
-		for d in data: print data[d]
+		#data = json.loads( user_data )
+		#print data
+		#for d in data: print data[d]
 		
 		try:
 			
 			# Send user credentials to the server (Authentication Protocol: Request Phase)
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/login", data=user_data)
+			
+			print req, "1"
 			r = urllib2.urlopen(req)
+			print r,"1"
 			headers = r.info().headers
+			print headers,"1"
 			cookie_found = False
 
 			# Search for the cookie in the response headers
@@ -101,7 +103,9 @@ class ChatManager:
 				print ("Login unsuccessful, did not receive cookie from server")
 		except urllib2.HTTPError as e:
 			# HTTP error happened, the response status is not 200 (OK)
+			print "hello2"
 			print ("Unable to log in, server returned HTTP", e.code, e.msg)
+			print "hello3"
 
 			# reset ChatManager attributes
 			self.user_name = ""

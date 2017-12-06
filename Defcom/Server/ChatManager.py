@@ -3,7 +3,6 @@ from RegisteredUsers import RegisteredUsers
 from Conversation import Conversation
 
 from server_protocols import AuthenticationConfirmation
-from DefComCryptography import Decrypt, VerifiySignature
 
 class ChatManager:
 	def __init__(self):
@@ -13,24 +12,24 @@ class ChatManager:
 		self.active_users = []
 		self.active_conversations = []
 
-	def login_user(self, user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig):
+	def login_user(self, user_name, enc_password, public_key, timestamp, now_timestamp, certificate, client_sig):
 		"""
 		Logs in a user.
 		:param user_name: the user name of the user.
 		:param password: the password of the user.
 		:return: the user object representing the logged in user.
 		"""
-		ver_check = VerifiySignature( public_key, client_sig, timestamp+public_key+password )
-		print ver_check, "ASdfasdfasd"
-		# auth request
-		sym_key, boolReplay, certGood, ver_check, pw = AuthenticationConfirmation(
-			user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig
-		)
+
+		# verify and authenticate the message
+		password = AuthenticationConfirmation(
+			timestamp, now_timestamp, user_name, enc_password, public_key, client_sig, certificate)
+
+		print "Password ", password, "!"
 
 		# search for the user among the registered users.
 		current_user = None
 		for user in RegisteredUsers:
-			if ver_check and not boolReplay and certGood and user["user_name"] == user_name and user["password"] == Decrypt(pw, sym_key):
+			if user["user_name"] == user_name and user["password"] == password:
 				current_user = copy.deepcopy(user)
 				break
 		if current_user:

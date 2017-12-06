@@ -1,54 +1,79 @@
-from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignSignature, VerifiySignature, generate_RSA
-from Crypto.PublicKey import RSA 
+from DefComCryptography import Generate32BitKey, Encrypt, Decrypt, SignWithPrivateKey, VerifiySignedWithPublicKey
 import json
 import unittest
 from datetime import timedelta, datetime
+from Crypto.PublicKey import RSA 
 
 from config import SERV_PRIV_KEY, SERV_PUB_KEY
 
 
-def AuthenticationConfirmation( user_name, password, public_key, timestamp, now_timestamp, enc_sym_key, certificate, client_sig ):
+def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_password, public_key, client_sig, certificate ):
 	'''
 	Returns 5-tuple of symmetric-key, if replay attack was detected, certificate was signed correctly, signature signed perfectly, and encrypted password.
 
 	:params...:
 	'''
-	sym_key = None
-	print timestamp, now_timestamp
-	boolReplay = detect_replay_protection( timestamp=timestamp, timestamp_against=now_timestamp ) 
-	goodCert = False
-	pw = password
 
-	print boolReplay
+	#first check the timestamp
+	#print timestamp, now_timestamp
+	timestamp_check = detect_replay_protection( timestamp=timestamp, timestamp_against=now_timestamp )
+	if not (timestamp_check):
+		print "The timestamp is expired, this message might be a replay"
+		return
+
+	#get the CA's public key
+	f = open( 'CA_PUB_KEY.pem', 'r' )
+	CA_PUB_KEY = RSA.importKey(f.read())
+	f.close()
+
+	print "hello!"
+	#check the certificate to make sure the public key is legitimate
+	# cert_check = VerifiySignedWithPublicKey( CA_PUB_KEY, certificate, user_name+public_key )
+	# if not (cert_check):
+	# 	print "The certificate verification failed, the public key may not be legitimate"
+	# 	return
+
+	#check the signature with teh verified public key
+	# sig_check = VerifiySignedWithPublicKey( public_key, client_sig, timestamp+user_name+enc_password )
+	# if not (sig_check):
+	# 	print "The signature verification failed, the message may have been tampered with"
+	# 	return
+
+	#decode password and then look for user in the database
+	password = serv_priv.decrypt( SERV_PRIV_KEY )
+
+	return password
+
+
 	
-	# if true decompose msg, else return False
-	msg = timestamp + public_key + password
-	print public_key
-	print client_sig
-	print timestamp
-	ver_check = VerifiySignature( public_key, client_sig, msg )
-	print ver_check
+	# # if true decompose msg, else return False
+	# msg = timestamp + public_key + password
+	# print public_key
+	# print client_sig
+	# print timestamp
+	# ver_check = VerifiySignature( public_key, client_sig, msg )
+	# print ver_check
 	
-	if ver_check:
-		pw = password
-		serv_pub = SERV_PUB_KEY.publickey()
-		sym_key = serv_pub.decrypt( enc_sym_key )
+	# if ver_check:
+	# 	pw = password
+	# 	serv_pub = SERV_PUB_KEY.publickey()
+		
 
-		# PLACEHOLDER FOR SKYLAR...TO FIX
-		goodCert = True
-		'''
-		user_pub_key_check = decrypt(_buffer=user_creds["certificate"], keystring=ca_pub_key)
+	# 	# PLACEHOLDER FOR SKYLAR...TO FIX
+	# 	goodCert = True
+	# 	'''
+	# 	user_pub_key_check = decrypt(_buffer=user_creds["certificate"], keystring=ca_pub_key)
 
-		if not (user_pub_key_check == ):
-			return "the public key was not signed properly was not correct"
-		'''
-	else:
-		pass
+	# 	if not (user_pub_key_check == ):
+	# 		return "the public key was not signed properly was not correct"
+	# 	'''
+	# else:
+	# 	pass
 
-	print pw
-	print sym_key
+	# print pw
+	# print sym_key
 
-	return ( sym_key, boolReplay, goodCert, ver_check, pw )
+	# return ( sym_key, boolReplay, goodCert, ver_check, pw )
 
 '''
 def AuthenticationConfrimation( user_data ):

@@ -1,5 +1,4 @@
 from Crypto.Cipher import AES
-from Crypto.PublicKey import RSA 
 from Crypto.Util import Counter
 from Crypto import Random
 from base64 import b64encode, b64decode
@@ -85,7 +84,7 @@ def Decrypt( e_buffer, keystring ):
 	# return __buffer
 	return __buffer.decode('utf-8')
 
-def SignSignature( private_key, msg ):
+def SignWithPrivateKey( private_key, msg ):
 	'''
 	Using SHA-256 w/ 32 bit keys.
 
@@ -104,18 +103,16 @@ def SignSignature( private_key, msg ):
 	signer = PKCS1_v1_5.new( RSAkey )
 	
 	# create digest object
-	h = SHA256.new()
-	
-	h.update( b64encode(msg) )
+	h = SHA256.new(msg)
 	
 	# sign the digest
-	sign = signer.sign( h )
+	signature = signer.sign( h )
 	
 	# return 
 	return b64encode(sign)
 
 
-def VerifiySignature( public_key, signature, msg ):
+def VerifiySignedWithPublicKey( public_key, signature, msg ):
 	'''
 	Verifies with a public key from whom the msg came that it was indeed 
 	signed by their private key
@@ -123,14 +120,10 @@ def VerifiySignature( public_key, signature, msg ):
 	param: signature String signature to be verified
 	return: Boolean. True if the signature is valid; False otherwise. 
 	'''
+	
+	signer = PKCS1_v1_5.new( public_key ) 
 
-	rsakey = RSA.importKey( public_key ) 
-
-	signer = PKCS1_v1_5.new( rsakey ) 
-
-	digest = SHA256.new() 
-
-	digest.update( b64encode(msg) ) 
+	digest = SHA256.new(msg) 
 
 	if signer.verify( digest, b64decode(signature)  ):
 		return True

@@ -77,6 +77,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class LoginHandler(JsonHandler):
     def data_received(self, chunk):
+        print "hello spaghettio"
         pass
 
     def post(self):
@@ -86,22 +87,22 @@ class LoginHandler(JsonHandler):
         Upon successful login, the user is added to the active users list.
         Further user authentication happens through cookies.
         """
+        print "GEEPERS"
+
         user_name = self.request.arguments['user_name'] # username from user
-        password = self.request.arguments['password'] # encrypted password from user
+        enc_password = self.request.arguments['enc_password'] # encrypted password from user
         public_key = self.request.arguments['public_key'] # public key from user
         timestamp = self.request.arguments['timestamp'] # timestamp given at time
         now_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # timestamp of server received
-        enc_sym_key = self.request.arguments['enc_sym_key'] # encrypted symmetric key using server's public key
         client_sig = self.request.arguments['client_sig'] # client_sig of your dreams
         certificate = self.request.arguments['certificate'] # dreams of your parents
 
         current_user = cm.login_user( 
             user_name=user_name, 
-            password=password,
+            enc_password=enc_password,
             public_key=public_key, 
             timestamp=timestamp, 
             now_timestamp=now_timestamp, 
-            enc_sym_key=enc_sym_key, 
             certificate=certificate, 
             client_sig=client_sig
         )
