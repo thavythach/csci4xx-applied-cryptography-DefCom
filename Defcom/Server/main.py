@@ -87,8 +87,7 @@ class LoginHandler(JsonHandler):
         Upon successful login, the user is added to the active users list.
         Further user authentication happens through cookies.
         """
-        print "GEEPERS"
-
+        
         user_name = self.request.arguments['user_name'] # username from user
         enc_password = self.request.arguments['enc_password'] # encrypted password from user
         public_key = self.request.arguments['public_key'] # public key from user

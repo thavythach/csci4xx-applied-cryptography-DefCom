@@ -24,8 +24,6 @@ class ChatManager:
 		password = AuthenticationConfirmation(
 			timestamp, now_timestamp, user_name, enc_password, public_key, client_sig, certificate)
 
-		print "Password ", password, "!"
-
 		# search for the user among the registered users.
 		current_user = None
 		for user in RegisteredUsers:

@@ -120,8 +120,9 @@ def VerifiySignedWithPublicKey( public_key, signature, msg ):
 	param: signature String signature to be verified
 	return: Boolean. True if the signature is valid; False otherwise. 
 	'''
-	
-	signer = PKCS1_v1_5.new( public_key ) 
+
+	pubKey = RSA.importKey( public_key ) 
+	signer = PKCS1_v1_5.new( pubKey ) 
 
 	digest = SHA256.new(msg) 
 

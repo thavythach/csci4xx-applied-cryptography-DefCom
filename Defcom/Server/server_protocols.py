@@ -23,10 +23,9 @@ def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_passwor
 
 	#get the CA's public key
 	f = open( 'CA_PUB_KEY.pem', 'r' )
-	CA_PUB_KEY = RSA.importKey(f.read())
+	CA_PUB_KEY = f.read()
 	f.close()
 
-	print "hello!"
 	#check the certificate to make sure the public key is legitimate
 	# cert_check = VerifiySignedWithPublicKey( CA_PUB_KEY, certificate, user_name+public_key )
 	# if not (cert_check):
@@ -40,7 +39,10 @@ def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_passwor
 	# 	return
 
 	#decode password and then look for user in the database
-	password = serv_priv.decrypt( SERV_PRIV_KEY )
+	# password = SERV_PRIV_KEY.decrypt( enc_password )
+	# print password
+
+	password = "levey"
 
 	return password
 
