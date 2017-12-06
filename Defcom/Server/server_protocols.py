@@ -49,61 +49,6 @@ def AuthenticationConfirmation( timestamp, now_timestamp, user_name, enc_passwor
 	return password
 
 
-	
-	# # if true decompose msg, else return False
-	# msg = timestamp + public_key + password
-	# print public_key
-	# print client_sig
-	# print timestamp
-	# ver_check = VerifiySignature( public_key, client_sig, msg )
-	# print ver_check
-	
-	# if ver_check:
-	# 	pw = password
-	# 	serv_pub = SERV_PUB_KEY.publickey()
-		
-
-	# 	# PLACEHOLDER FOR SKYLAR...TO FIX
-	# 	goodCert = True
-	# 	'''
-	# 	user_pub_key_check = decrypt(_buffer=user_creds["certificate"], keystring=ca_pub_key)
-
-	# 	if not (user_pub_key_check == ):
-	# 		return "the public key was not signed properly was not correct"
-	# 	'''
-	# else:
-	# 	pass
-
-	# print pw
-	# print sym_key
-
-	# return ( sym_key, boolReplay, goodCert, ver_check, pw )
-
-'''
-def AuthenticationConfrimation( user_data ):
-
-	user_creds = json.loads(user_data)
-	detect_replay_protection(user_creds["timestamp"])
-
-	username = user_creds["user_name"]
-
-	#TODO: open up users file and get pw for the given username
-	#also get the public key (ca_pub_key) of the CA
-
-	
-
-
-
-
-
-	if not (user_creds["password"] == correct_password):
-		return "the password was not correct"
-	
-
-
-'''
-
-
 def detect_replay_protection( timestamp, timestamp_against=datetime.now(), t=30 ):
 	'''
 	Tells us whether or not the message was a valid message given 30 seconds

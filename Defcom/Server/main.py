@@ -4,6 +4,8 @@ import json
 from datetime import datetime
 
 from ChatManager import ChatManager
+from DefComCryptography import SignWithPrivateKey
+from config import SERV_PRIV_KEY
 
 
 class Constants:
@@ -78,6 +80,24 @@ class MainHandler(tornado.web.RequestHandler):
 class LoginHandler(JsonHandler):
     def data_received(self, chunk):
         pass
+
+    def get(self):
+        """
+        Returns Signature Object
+        """
+        
+        # Set JSON response
+        answer = []
+        new_answer_item = dict()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        resp = "You have been Authenticated."
+        new_answer_item['timestamp'] = timestamp
+        new_answer_item['message'] = resp
+        new_answer_item['signature'] = SignWithPrivateKey( SERV_PRIV_KEY, timestamp+resp )
+        answer.append(new_answer_item)
+
+        self.response = answer
+        self.write_json()
 
     def post(self):
         """
