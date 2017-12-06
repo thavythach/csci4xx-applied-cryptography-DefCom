@@ -48,6 +48,8 @@ def MessageMaker(privateKey, message):
 			"message" : message,
 			"signature": signature
 	})
+
+	print type(full_message)
 	return full_message
 
 

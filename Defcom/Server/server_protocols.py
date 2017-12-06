@@ -9,7 +9,7 @@ from config import SERV_PRIV_KEY, SERV_PUB_KEY
 
 
 
-def ResponseChecker( response ):
+def ResponseChecker( timestamp, message, signature, publicKey ):
 
 	'''
 	checks the validity of a simple message that consists of a
@@ -17,21 +17,20 @@ def ResponseChecker( response ):
 
 	'''
 
-	json_rsp = json.loads(response)
-
 	now_timestamp =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-	timestamp_check = detect_replay_protection( timestamp=json_rsp["timestamp"], timestamp_against=now_timestamp )
+	timestamp_check = detect_replay_protection( timestamp=timestamp, timestamp_against=now_timestamp )
 	if not (timestamp_check):
 		print "The timestamp is expired, this message might be a replay"
 		return ""
 
-	sig_check = VerifiySignedWithPublicKey( SERV_PUB_KEY, json_rsp["signature"], json_rsp["timestamp"]+json_rsp["message"] )
+	sig_check = VerifiySignedWithPublicKey( publicKey, signature, timestamp+message )
 	if not (sig_check):
 		print "The signature verification failed, the message may have been tampered with"
 		return ""
 
-	return json_rsp["message"]
+	return message
+
 
 
 def MessageMaker(privateKey, message):

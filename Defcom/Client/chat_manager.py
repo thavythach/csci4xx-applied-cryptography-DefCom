@@ -65,6 +65,8 @@ class ChatManager:
 		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
 		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
 
+		print type(user_data)
+
 		#data = json.loads( user_data )
 		#print data
 		#for d in data: print data[d]
@@ -86,10 +88,10 @@ class ChatManager:
 				self.is_logged_in = True
 
 				confirmation_response = r.read()
-				responsOkay = Protocols.ResponseChecker(confirmation_response)
-				if responsOkay == "":
+				responseOkay = Protocols.ResponseChecker(confirmation_response)
+				if responseOkay == "":
 					self.is_logged_in = False
-				print responsOkay
+				print responseOkay
 	
 			else:
 				# No cookie, login unsuccessful
@@ -136,8 +138,10 @@ class ChatManager:
 		# Allowed only, if user is logged in
 		if self.is_logged_in:
 			try:
+				users_msg = Protocols.MessageMaker(self.private_key, "requesting availible users")
+				print users_msg,type(users_msg)
 				# Query server for users to invite
-				req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/users")
+				req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/users", data=users_msg)
 				req.add_header("Cookie", self.cookie)
 				r = urllib2.urlopen(req)
 				users = json.loads(r.read())
@@ -147,9 +151,14 @@ class ChatManager:
 			except urllib2.URLError as e:
 				print ("Unable to create conversation, reason:", e.message)
 				return
+			#security check
+			responseOkay = Protocols.ResponseChecker(users[-1])
+			if responseOkay == "":
+				return
+
 			# Print potential participants
 			print ("Available users:")
-			for user in users:
+			for user in users[:-1]:
 				try:
 					if user["user_name"] != self.user_name:
 						# save

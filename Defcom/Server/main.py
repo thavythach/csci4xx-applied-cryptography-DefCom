@@ -138,11 +138,31 @@ class UsersHandler(JsonHandler):
 		Required for starting a new conversation.
 		"""
 
+		print "hello !!!"
+		timestamp = self.request.arguments['timestamp']
+		message = self.request.arguments['message']
+		signature = self.request.arguments['signature']
+
+		print timestamp, message, signature
+
+		if Protocols.ResponseChecker(timestamp,message,signature,self.public_key) == "":
+			return
+ 
 		print ("Sending available users")
 		users = cm.get_all_users()
+		final_message = []
+		usernames = ""
+		for user in users:
+			final_message.append({"user_name":user["user_name"]})
+			usernames = usernames + user["user_name"]
+
+		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		signature = SignWithPrivateKey(privateKey, timestamp+usernames)
+		final_message.append({"timestamp":timestamp,"message":usernames,"signature":signature})
 
 		# Set JSON response
-		self.response = users
+		print final_message
+		self.response = final_message
 		self.write_json()
 
 
