@@ -9,7 +9,7 @@ from config import SERV_PRIV_KEY
 import server_protocols as Protocols
 
 from base64 import b64encode, b64decode
-
+from RegisteredUsers import RegisteredUsers
 
 class Constants:
 	def __init__(self):
@@ -139,7 +139,6 @@ class UsersHandler(JsonHandler):
 		if not user_name:
 			return	
 		
-		from RegisteredUsers import RegisteredUsers
 		for Users in RegisteredUsers:
 			if Users['user_name'] == user_name:
 				pub_key = Users['public_key']
@@ -171,12 +170,11 @@ class UsersHandler(JsonHandler):
 		self.set_status(200)
 
 		# Set JSON response
-		# print final_message
 		self.response = final_message
-		# self.response = users
 		self.write_json()
+
 		self.finish()
-		
+
 class ConversationHandler(JsonHandler):
 	def data_received(self, chunk):
 		pass
@@ -219,11 +217,45 @@ class ConversationCreateHandler(JsonHandler):
 		if not user_name:
 			return
 
+		for Users in RegisteredUsers:
+			if Users['user_name'] == user_name:
+				pub_key = Users['public_key']
+				break
+
 		try:
 			# owner should be included as well!
 			participants = self.request.arguments['participants']
+			users_sigs = self.request.arguments['users_sig']
+			users_sigs = json.loads( users_sigs )
+
+			timestamp = users_sigs['timestamp']
+			message = users_sigs['message']
+			signature = users_sigs['signature']
+
+			if Protocols.ResponseChecker(timestamp,message,signature,pub_key) == "":
+				return
+
+			
+
 			participants = json.loads(participants)
 			cm.create_conversation(participants)
+
+			final_message = []
+			print participants
+			participants_strings = ""
+			for par in participants:
+				final_message.append({"user_name":par})
+				participants_strings += par
+
+			timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+			signature = SignWithPrivateKey(SERV_PRIV_KEY, timestamp+participants_strings)
+			final_message.append({"timestamp":timestamp,"message":participants_strings,"signature":signature})
+		
+			# Set JSON response
+			self.response = final_message
+			self.write_json()
+
+
 		except KeyError as e:
 			print ("KeyError during conversation creation!", e.message)
 			self.send_error(400, message=e.message)

@@ -139,26 +139,39 @@ class ChatManager:
 		if self.is_logged_in:
 			try:
 				users_msg = Protocols.MessageMaker(self.private_key, "requesting availible users")
-				print users_msg,type(users_msg)
+				# print users_msg,type(users_msg)
 				# Query server for users to invite
 				req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/users", data=users_msg)
 				req.add_header("Cookie", self.cookie)
 				r = urllib2.urlopen(req)
-				users = json.loads(r.read())
+				users = r.read()
+
+				#security check
+				_users = json.loads(users)[-1]
+				users = json.loads(users)[:-1]
+				
+				verf = json.dumps([{
+					'timestamp': _users['timestamp'],
+					'message': _users['message'],
+					'signature': _users['signature']	
+				}])
+				
+
+				responseOkay = Protocols.ResponseChecker( verf  )
+				print responseOkay
+				if responseOkay == "":
+					return		
 			except urllib2.HTTPError as e:
 				print ("Unable to create conversation, server returned HTTP", e.code, e.msg)
 				return
 			except urllib2.URLError as e:
 				print ("Unable to create conversation, reason:", e.message)
 				return
-			#security check
-			responseOkay = Protocols.ResponseChecker(users[-1])
-			if responseOkay == "":
-				return
+			
 
 			# Print potential participants
 			print ("Available users:")
-			for user in users[:-1]:
+			for user in users:
 				try:
 					if user["user_name"] != self.user_name:
 						# save
@@ -176,9 +189,12 @@ class ChatManager:
 				# Create a list of participants
 				participant_list = participants.split(";")
 			# Add c	urrent user to the participant list
+			
+			users_msg = Protocols.MessageMaker(self.private_key, "creating new conversation"+self.user_name)
 			participant_list.append(self.user_name)
 			data = json.dumps({
-				"participants": json.dumps(participant_list)
+				"participants": json.dumps(participant_list),
+				"users_sig": users_msg
 			})
 			print ("Creating new conversation...")
 			try:
@@ -187,6 +203,26 @@ class ChatManager:
 				# Cookie has to included with every request
 				req.add_header("Cookie", self.cookie)
 				r = urllib2.urlopen(req)
+
+				confirmation_response = r.read()
+
+				#security check
+				_rsp = json.loads( confirmation_response )[-1]
+				rsp = json.loads( confirmation_response )[:-1]
+
+				
+				verf = json.dumps([{
+					'timestamp': _rsp['timestamp'],
+					'message': _rsp['message'],
+					'signature': _rsp['signature']	
+				}])
+				
+
+				responseOkay = Protocols.ResponseChecker( verf  )
+				print responseOkay
+				if responseOkay == "":
+					return		
+
 			except urllib2.HTTPError as e:
 				print ("Unable to create conversation, server returned HTTP", e.code, e.msg)
 				return
