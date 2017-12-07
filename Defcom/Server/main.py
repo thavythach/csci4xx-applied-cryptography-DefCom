@@ -132,24 +132,31 @@ class UsersHandler(JsonHandler):
 	def data_received(self, chunk):
 		pass
 
-	def get(self):
-		"""
-		Returns all registered user.
-		Required for starting a new conversation.
-		"""
+	def post(self):
 
-		print "hello !!!"
+		# check user login
+		user_name = self.check_for_logged_in_user()
+		if not user_name:
+			return	
+		
+		from RegisteredUsers import RegisteredUsers
+		for Users in RegisteredUsers:
+			if Users['user_name'] == user_name:
+				pub_key = Users['public_key']
+				break
+
 		timestamp = self.request.arguments['timestamp']
 		message = self.request.arguments['message']
 		signature = self.request.arguments['signature']
 
-		print timestamp, message, signature
-
-		if Protocols.ResponseChecker(timestamp,message,signature,self.public_key) == "":
+		if Protocols.ResponseChecker(timestamp,message,signature,pub_key) == "":
 			return
- 
+
 		print ("Sending available users")
 		users = cm.get_all_users()
+		
+		# print users
+
 		final_message = []
 		usernames = ""
 		for user in users:
@@ -157,15 +164,19 @@ class UsersHandler(JsonHandler):
 			usernames = usernames + user["user_name"]
 
 		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-		signature = SignWithPrivateKey(privateKey, timestamp+usernames)
+		signature = SignWithPrivateKey(SERV_PRIV_KEY, timestamp+usernames)
 		final_message.append({"timestamp":timestamp,"message":usernames,"signature":signature})
+	
+
+		self.set_status(200)
 
 		# Set JSON response
-		print final_message
+		# print final_message
 		self.response = final_message
+		# self.response = users
 		self.write_json()
-
-
+		self.finish()
+		
 class ConversationHandler(JsonHandler):
 	def data_received(self, chunk):
 		pass
