@@ -26,7 +26,7 @@ def symKeyGenerator( allUsersAndKeys, wantedUsers ):
 		usersAndSymKeys.append({"user_name":user["user_name"],"encSymKey":encSymKey})
 		checkMessage += user["user_name"] + encSymKey
 	
-	print usersAndSymKeys
+	#print usersAndSymKeys
 	return usersAndSymKeys, checkMessage
 
 
@@ -74,7 +74,6 @@ def MessageMaker(privateKey, message):
 			"signature": signature
 	})
 
-	print type(full_message)
 	return full_message
 
 

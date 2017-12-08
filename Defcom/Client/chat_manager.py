@@ -66,8 +66,6 @@ class ChatManager:
 		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
 		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
 
-		print type(user_data)
-
 		#data = json.loads( user_data )
 		#print data
 		#for d in data: print data[d]
@@ -92,7 +90,6 @@ class ChatManager:
 				responseOkay = Protocols.ResponseChecker(confirmation_response)
 				if responseOkay == "":
 					self.is_logged_in = False
-				print responseOkay
 	
 			else:
 				# No cookie, login unsuccessful

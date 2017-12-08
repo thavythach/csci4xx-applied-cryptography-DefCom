@@ -235,7 +235,7 @@ class ConversationCreateHandler(JsonHandler):
 
 			verifyMessage = ""
 			for user in participants:
-				verifyMessage += participants["user_name"] + participants["encSymKey"]
+				verifyMessage += user["user_name"] + user["encSymKey"]
 
 			if message != verifyMessage:
 				print "Actual data:    ", verifyMessage
@@ -246,15 +246,13 @@ class ConversationCreateHandler(JsonHandler):
 			if Protocols.ResponseChecker(timestamp,message,signature,pub_key) == "":
 				return
 
-			cm.create_conversation(participants)
-			print ("this is totally broken")			
+			cm.create_conversation(participants)			
 
 			final_message = []
-			print participants
 			participants_strings = ""
 			for par in participants:
-				final_message.append({"user_name":par})
-				participants_strings += par
+				final_message.append({"user_name":par["user_name"]})
+				participants_strings += par["user_name"]
 
 			timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 			signature = SignWithPrivateKey(SERV_PRIV_KEY, timestamp+participants_strings)
