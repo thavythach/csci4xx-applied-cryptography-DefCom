@@ -65,24 +65,24 @@ class ChatManager:
 		"""
 
 		# check participants if they exists
-		print ("Checking participants...", participant_list)
+		print "Checking participants...", participant_list
 
 		# check each user if it is valid
 		for participant in participant_list:
 			valid_user = False
 			for user in RegisteredUsers:
-				if participant == user['user_name']:
+				if participant["user_name"] == user['user_name']:
 					valid_user = True
 			if not valid_user:
-				print ("Invalid user found at conversation creation. Breaking...")
+				print "Invalid user found at conversation creation. Breaking..."
 				raise Exception("Invalid user found at creating new conversation!")
 
 		# check if min 2 user exist
 		if len(participant_list) < 2:
-			print ("Not enough user!")
+			print "Not enough user!"
 			raise Exception("Not enough user!")
 
-		print ("Creating new conversation...")
+		print "Creating new conversation..."
 		new_conversation = Conversation(participant_list)
 		self.active_conversations.append(new_conversation)
 

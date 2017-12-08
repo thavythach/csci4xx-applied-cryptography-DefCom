@@ -159,8 +159,8 @@ class UsersHandler(JsonHandler):
 		final_message = []
 		usernames = ""
 		for user in users:
-			final_message.append({"user_name":user["user_name"]})
-			usernames = usernames + user["user_name"]
+			final_message.append({"user_name":user["user_name"], "public_key":user["public_key"]})
+			usernames = usernames + user["user_name"] + user["public_key"]
 
 		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		signature = SignWithPrivateKey(SERV_PRIV_KEY, timestamp+usernames)
@@ -225,6 +225,7 @@ class ConversationCreateHandler(JsonHandler):
 		try:
 			# owner should be included as well!
 			participants = self.request.arguments['participants']
+			participants = json.loads(participants)
 			users_sigs = self.request.arguments['users_sig']
 			users_sigs = json.loads( users_sigs )
 
@@ -232,12 +233,19 @@ class ConversationCreateHandler(JsonHandler):
 			message = users_sigs['message']
 			signature = users_sigs['signature']
 
+			verifyMessage = ""
+			for user in participants:
+				verifyMessage += participants["user_name"] + participants["encSymKey"]
+
+			if message != verifyMessage:
+				print "Actual data:    ", verifyMessage
+				print "Message Representation:    ", message
+				print "Actual data did not match the message represention"
+				return
+
 			if Protocols.ResponseChecker(timestamp,message,signature,pub_key) == "":
 				return
 
-			
-
-			participants = json.loads(participants)
 			cm.create_conversation(participants)
 
 			final_message = []

@@ -23,8 +23,7 @@ class Conversation:
         self.manager = manager # chat manager for sending messages
         self.run_infinite_loop = True
         self.msg_process_loop = Thread(
-            target=self.process_all_messages
-        ) # message processing loop
+            target=self.process_all_messages) # message processing loop
         self.msg_process_loop.start()
         self.msg_process_loop_started = True
 

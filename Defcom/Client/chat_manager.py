@@ -154,10 +154,9 @@ class ChatManager:
 					'timestamp': _users['timestamp'],
 					'message': _users['message'],
 					'signature': _users['signature']	
-				}])
-				
+				}])			
 
-				responseOkay = Protocols.ResponseChecker( verf  )
+				responseOkay = Protocols.ResponseChecker( verf )
 				print responseOkay
 				if responseOkay == "":
 					return		
@@ -188,14 +187,19 @@ class ChatManager:
 			if participants != "":
 				# Create a list of participants
 				participant_list = participants.split(";")
-			# Add c	urrent user to the participant list
+
+			# Add current user to the participant list
+			participant_list.append(self.username)
+			#make new key and encrypt it with pub keys, then update response
+			usersAndTheirKeys, checkMessage = symKeyGenerator( users, participant_list )
 			
-			users_msg = Protocols.MessageMaker(self.private_key, "creating new conversation"+self.user_name)
-			participant_list.append(self.user_name)
+			users_msg = Protocols.MessageMaker(self.private_key, checkMessage)
 			data = json.dumps({
-				"participants": json.dumps(participant_list),
+				"participants": json.dumps(usersAndTheirKeys),
 				"users_sig": users_msg
 			})
+
+
 			print ("Creating new conversation...")
 			try:
 				# Send conversation create request to the server (participants are POSTed)

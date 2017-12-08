@@ -5,7 +5,11 @@ from Message import Message
 
 class Conversation:
     def __init__(self, participants):
-        self.participants = participants  # list of Users
+        self.participants = [] # list of Users
+        self.encSymKeys = {} # dictionary of Users: their EncSymKeys
+        for person in participants:
+            self.participants.append(person["user_name"])
+            self.encSymKeys[person["user_name"]] = person["encSymKey"]
         self.conversation_id = random.randint(1, 10000)
         self.messages = []  # list of Messages
 
