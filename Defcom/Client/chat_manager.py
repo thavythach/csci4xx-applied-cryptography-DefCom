@@ -313,15 +313,15 @@ class ChatManager:
 		# Allowed only, if user is logged in and the application is not currently exiting
 		while self.is_logged_in == True and state != STOP:
 			if state == IN_CONVERSATION:
-    			
+				
 				users_msg = Protocols.MessageMaker(self.private_key, "getting messages")
 
 				try:
 					# If we are in a conversation, download messages that have not been seen in the current conv.
 					req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/" +
 										  str(self.current_conversation.get_id()) +
-										  "/" + str(self.current_conversation.get_last_message_id()),
-										  data=users_msg)
+										  "/" + str(self.current_conversation.get_last_message_id())
+										  )#+ "/" + b64encode( users_msg ))
 					# Include cooke
 					req.add_header("Cookie", self.cookie)
 					r = urllib2.urlopen(req)
