@@ -247,6 +247,7 @@ class ConversationCreateHandler(JsonHandler):
 				return
 
 			cm.create_conversation(participants)
+			print ("this is totally broken")			
 
 			final_message = []
 			print participants
@@ -271,17 +272,16 @@ class ConversationCreateHandler(JsonHandler):
 		except Exception as e:
 			self.send_error(400, message=e.message)
 			return
-
+		
 		self.set_status(200)
 		self.finish()
 
-
-class ConcreteConversationHandler(JsonHandler):
-
+class ConcreteGetConversationHandler(JsonHandler):
+    
 	def data_received(self, chunk):
 		pass
 
-	def get(self, conversation_id, last_message_id):
+	def post(self, conversation_id, last_message_id):
 		"""
 		Sends back the messages since the last seen message for the client.
 		:param conversation_id: the id of the conversation queried
@@ -289,10 +289,23 @@ class ConcreteConversationHandler(JsonHandler):
 		:return: array of messages
 		"""
 
+		print "break"
+
 		# check user login
 		user_name = self.check_for_logged_in_user()
 		if not user_name:
 			return
+		
+		for Users in RegisteredUsers:
+    			if Users['user_name'] == user_name:
+				pub_key = Users['public_key']
+				break
+
+		timestamp = self.request.arguments['timestamp']
+		message = self.request.arguments['message']
+		signature = self.request.arguments['signature']
+
+		print timestamp, signature, message
 
 		print ("Getting messages in conversation: " + str(conversation_id) + \
 			  " for user: " + user_name + \
@@ -318,6 +331,11 @@ class ConcreteConversationHandler(JsonHandler):
 		# send JSON reply
 		self.response = answer
 		self.write_json()
+
+class ConcreteConversationHandler(JsonHandler):
+
+	def data_received(self, chunk):
+		pass
 
 	def post(self, conversation_id):
 		"""
@@ -368,7 +386,7 @@ def init_app():
 		(r"/conversations", ConversationHandler),
 		(r"/conversations/create", ConversationCreateHandler),
 		(r"/conversations/([0-9]+)", ConcreteConversationHandler),
-		(r"/conversations/([0-9]+)/([0-9]+)?", ConcreteConversationHandler)
+		(r"/conversations/([0-9]+)/([0-9]+)?", ConcreteGetConversationHandler)
 	],
 		cookie_secret="6d41bbfe48ce3d078479feb364d98ecda2206edc"
 	)

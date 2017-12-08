@@ -9,6 +9,7 @@ from threading import Thread
 
 import base64
 import client_protocols as Protocols
+import client_protocols as Protocols
 
 state = INIT  # initial state for the application
 has_requested_messages = False  # history of the next conversation will need to be downloaded and printed
@@ -157,7 +158,7 @@ class ChatManager:
 				}])			
 
 				responseOkay = Protocols.ResponseChecker( verf )
-				print responseOkay
+				# print responseOkay
 				if responseOkay == "":
 					return		
 			except urllib2.HTTPError as e:
@@ -189,9 +190,9 @@ class ChatManager:
 				participant_list = participants.split(";")
 
 			# Add current user to the participant list
-			participant_list.append(self.username)
+			participant_list.append(self.user_name)
 			#make new key and encrypt it with pub keys, then update response
-			usersAndTheirKeys, checkMessage = symKeyGenerator( users, participant_list )
+			usersAndTheirKeys, checkMessage = Protocols.symKeyGenerator( users, participant_list )
 			
 			users_msg = Protocols.MessageMaker(self.private_key, checkMessage)
 			data = json.dumps({
@@ -315,11 +316,15 @@ class ChatManager:
 		# Allowed only, if user is logged in and the application is not currently exiting
 		while self.is_logged_in == True and state != STOP:
 			if state == IN_CONVERSATION:
+    			
+				users_msg = Protocols.MessageMaker(self.private_key, "getting messages")
+
 				try:
 					# If we are in a conversation, download messages that have not been seen in the current conv.
 					req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/" +
 										  str(self.current_conversation.get_id()) +
-										  "/" + str(self.current_conversation.get_last_message_id()))
+										  "/" + str(self.current_conversation.get_last_message_id()),
+										  data=users_msg)
 					# Include cooke
 					req.add_header("Cookie", self.cookie)
 					r = urllib2.urlopen(req)

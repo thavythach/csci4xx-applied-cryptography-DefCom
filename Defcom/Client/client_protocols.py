@@ -10,8 +10,8 @@ from config import SERV_PUB_KEY
 
 def symKeyGenerator( allUsersAndKeys, wantedUsers ):
 	usersAndPubKeys = []
-	for allUser in allUsersAndKeys
-		if allusers["user_name"] in wantedUsers:
+	for allUser in allUsersAndKeys:
+		if allUser["user_name"] in wantedUsers:
 			usersAndPubKeys.append(allUser)
 
 	convoSymkey = Generate32BitKey()
@@ -20,12 +20,13 @@ def symKeyGenerator( allUsersAndKeys, wantedUsers ):
 	checkMessage = ""
 	for user in usersAndPubKeys:
 
-		encSymKey = b64encode( RSA.importKey(usersAndPubKeys["public_key"])
+		encSymKey = b64encode( RSA.importKey(user["public_key"])
 			.encrypt(str(convoSymkey),32)[0])
 
 		usersAndSymKeys.append({"user_name":user["user_name"],"encSymKey":encSymKey})
 		checkMessage += user["user_name"] + encSymKey
-		
+	
+	print usersAndSymKeys
 	return usersAndSymKeys, checkMessage
 
 
