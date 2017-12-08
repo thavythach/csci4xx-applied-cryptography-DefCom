@@ -274,60 +274,6 @@ class ConversationCreateHandler(JsonHandler):
 		self.set_status(200)
 		self.finish()
 
-class ConcreteGetConversationHandler(JsonHandler):
-	
-	def data_received(self, chunk):
-		pass
-
-	def post(self, conversation_id, last_message_id):
-		"""
-		Sends back the messages since the last seen message for the client.
-		:param conversation_id: the id of the conversation queried
-		:param last_message_id: the id of the last message seen by the client
-		:return: array of messages
-		"""
-
-		# check user login
-		user_name = self.check_for_logged_in_user()
-		if not user_name:
-			return
-		
-		for Users in RegisteredUsers:
-			if Users['user_name'] == user_name:
-				pub_key = Users['public_key']
-				break
-
-		timestamp = self.request.arguments['timestamp']
-		message = self.request.arguments['message']
-		signature = self.request.arguments['signature']
-
-		print timestamp, signature, message, " swag"
-
-		print ("Getting messages in conversation: " + str(conversation_id) + \
-			  " for user: " + user_name + \
-			  " since: " + str(last_message_id))
-
-		conversation = cm.get_conversation(conversation_id)
-		if not conversation:
-			print ("Conversation not found")
-			self.send_error(500)
-			return
-
-		messages = conversation.get_messages_since(last_message_id)
-
-		# Transforming the messages list for the chat client
-		answer = []
-		for message in messages:
-			new_answer_item = dict()
-			new_answer_item['content'] = message.content
-			new_answer_item['message_id'] = message.message_id
-			new_answer_item['owner'] = message.user_name
-			answer.append(new_answer_item)
-
-		# send JSON reply
-		self.response = answer
-		self.write_json()
-
 class ConcreteConversationHandler(JsonHandler):
 
 	def data_received(self, chunk):
@@ -368,6 +314,8 @@ class ConcreteConversationHandler(JsonHandler):
 			self.send_error(500)
 			return
 
+		print "dankasdfasdf", conversation
+
 		messages = conversation.get_messages_since(last_message_id)
 
 		# Transforming the messages list for the chat client
@@ -377,6 +325,10 @@ class ConcreteConversationHandler(JsonHandler):
 			new_answer_item['content'] = message.content
 			new_answer_item['message_id'] = message.message_id
 			new_answer_item['owner'] = message.user_name
+			new_answer_item['timestamp'] = message.timestamp
+			new_answer_item['signature'] = message.signature
+			new_answer_item['public_key'] = message.public_key
+			new_answer_item['enc_sym_key'] = conversation.encSymKeys[user_name]	
 			answer.append(new_answer_item)
 
 		# send JSON reply
@@ -389,7 +341,7 @@ class ConcreteConversationHandler(JsonHandler):
 		(Conversation id sent in URL parameter, message sent in POST body az JSON.
 		:param conversation_id: the id of the conversation of the message
 		"""
-
+		print "dank---------------------------------"
 		# check user login
 		user_name = self.check_for_logged_in_user()
 		if not user_name:
@@ -397,6 +349,7 @@ class ConcreteConversationHandler(JsonHandler):
 
 		# getting the requested conversation
 		conversation = cm.get_conversation(conversation_id)
+		print conversation
 		if not conversation:
 			print ("conversation not found")
 			self.send_error(500)

@@ -1,3 +1,5 @@
+from DefComCryptography import Encrypt, Decrypt, SignWithPrivateKey, VerifiySignedWithPublicKey
+from datetime import datetime
 from message import Message
 import base64
 from time import sleep
@@ -21,11 +23,14 @@ class Conversation:
         from chat_manager import ChatManager
         assert isinstance(manager, ChatManager)
         self.manager = manager # chat manager for sending messages
+        self.public_key = manager.public_key
         self.run_infinite_loop = True
         self.msg_process_loop = Thread(
             target=self.process_all_messages) # message processing loop
         self.msg_process_loop.start()
         self.msg_process_loop_started = True
+        self.symKey = "qwertyuiopasdfghjklzxcvbnm123456"
+        print self.public_key, "1"
 
     def append_msg_to_process(self, msg_json):
         '''
@@ -77,6 +82,11 @@ class Conversation:
                     msg_id = int(current_msg["message_id"])
                     # Get the name of the user who sent the message
                     owner_str = current_msg["owner"]
+                    timestamp = current_msg["timestamp"]
+                    signature = current_msg["signature"]
+                    public_key = current_msg["public_key"]
+
+
                 except KeyError as e:
                     print ("Received JSON does not hold a message")
                     continue
@@ -87,7 +97,11 @@ class Conversation:
                     # If the message has not been processed before, process it
                     self.process_incoming_message(msg_raw=msg_raw,
                                                   msg_id=msg_id,
-                                                  owner_str=owner_str)
+                                                  owner_str=owner_str, 
+                                                  timestamp = timestamp,
+                                                  signature = signature,
+                                                  public_key = public_key)
+
                     # Update the ID of the last processed message to the current
                     self.last_processed_msg_id = msg_id
                 sleep(0.01)
@@ -109,7 +123,7 @@ class Conversation:
         pass
 
 
-    def process_incoming_message(self, msg_raw, msg_id, owner_str):
+    def process_incoming_message(self, msg_raw, msg_id, owner_str, timestamp, signature, public_key):
         '''
         Process incoming messages
         :param msg_raw: the raw message
@@ -120,9 +134,14 @@ class Conversation:
         :return: None
         '''
 
-        # process message here
-		# example is base64 decoding, extend this with any crypto processing of your protocol
-        decoded_msg = base64.decodestring(msg_raw)
+        #CRYPTO CHECKS
+        if not VerifiySignedWithPublicKey(public_key, signature, timestamp + owner_str + msg_raw):
+            print "the signature for this message did not verify correctly"
+            return
+
+        #timestamp?
+
+        decoded_msg = base64.decodestring(Decrypt(msg_raw,self.symKey))
 
         # print message and add it to the list of printed messages
         self.print_message(
@@ -138,13 +157,34 @@ class Conversation:
         :return: message to be sent to the server
         '''
 
+        #timestamp
+        timestamp =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        #encrypt message
+        encMessage = Encrypt(msg_raw, self.symKey)
+
+        message = timestamp + self.manager.user_name + msg_raw
+        
+        #sig
+        signature = SignWithPrivateKey(self.manager.private_key, message)
+
+        print self.manager.private_key, "2"
+        print self.manager.public_key, "3"
+        print self.public_key, "4"
+
         # if the message has been typed into the console, record it, so it is never printed again during chatting
         if originates_from_console == True:
+            print self.public_key, "5"
             # message is already seen on the console
             m = Message(
+                message_id=timestamp,
                 owner_name=self.manager.user_name,
-                content=msg_raw
+                timestamp=timestamp,
+                content=encMessage,
+                signature=signature,
+                public_key=self.public_key
             )
+            print "FUCK"
             self.printed_messages.append(m)
 
         # process outgoing message here

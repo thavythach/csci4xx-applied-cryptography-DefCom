@@ -326,6 +326,8 @@ class ChatManager:
 					req.add_header("Cookie", self.cookie)
 					r = urllib2.urlopen(req)
 					msgs = json.loads(r.read())
+
+					print msgs
 				except urllib2.HTTPError as e:
 					print ("Unable to download messages, server returned HTTP", e.code, e.msg)
 					self.get_msgs_thread_started = False
@@ -361,6 +363,7 @@ class ChatManager:
 			# Include cookie
 			req.add_header("Cookie", self.cookie)
 			r = urllib2.urlopen(req)
+			print r.read(), " asdfasdfasdfasdfasdfasdfasdf"
 		except urllib2.HTTPError as e:
 			print ("Unable to post message, server returned HTTP", e.code, e.msg)
 		except urllib2.URLError as e:
@@ -425,6 +428,8 @@ class ChatManager:
 						# Include cooke
 						req.add_header("Cookie", self.cookie)
 						r = urllib2.urlopen(req)
+						swag = r.read()
+						print swag, "=-asdfasdfas"
 						try:
 							c_id = int(conversation_id)
 						except ValueError as e:

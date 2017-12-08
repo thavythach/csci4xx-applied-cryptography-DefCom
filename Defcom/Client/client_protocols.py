@@ -163,11 +163,6 @@ class TestAuthenticationRequest( unittest.TestCase ):
 		f.close()
 
 		decrypt_pw = SERV_PRIV_KEY.decrypt(p1)
-		print decrypt_pw
-
-
-
-
 
 		# print creds
 		# print "TODO: fix testcase lol -kek"
