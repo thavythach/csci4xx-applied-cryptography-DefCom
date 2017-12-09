@@ -1,12 +1,15 @@
 import random
 import base64
 from Message import Message
+from datetime import timedelta, datetime
 
 
 class Conversation:
     def __init__(self, participants):
         self.participants = [] # list of Users
         self.encSymKeys = {} # dictionary of Users: their EncSymKeys
+        self.last_msg_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
         # Decompose Participants Dictionary into two lists: participants and encrypted sym keys
         for person in participants:
@@ -51,14 +54,20 @@ class Conversation:
         :param content: the text content of the message
         """
         print ("Adding new message for user: " + owner + " with content: " + message)
-        print "this is message reg not that^", message 
         if len(self.messages) == 0:
             new_id = 1
         else:
             new_id = self.messages[-1].message_id + 1
-        new_message = Message(new_id, owner, timestamp, message, signature, public_key)
 
-        self.messages.append(new_message)
+
+        if datetime.strptime(timestamp,'%Y-%m-%d %H:%M:%S') > datetime.strptime(self.last_msg_time,'%Y-%m-%d %H:%M:%S'):
+
+            print "last message", self.last_msg_time
+            print "new message", timestamp
+            self.last_msg_time = timestamp
+            new_message = Message(new_id, owner, timestamp, message, signature, public_key)
+            self.messages.append(new_message)
+
 
     def __str__(self):
         return str(self.conversation_id) + " with: " + str(self.participants) + " with messages: " + str(self.messages)

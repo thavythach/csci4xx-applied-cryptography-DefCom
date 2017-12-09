@@ -30,10 +30,7 @@ class Conversation:
             target=self.process_all_messages) # message processing loop
         self.msg_process_loop.start()
         self.msg_process_loop_started = True
-
         self.symKey = RSA.importKey(self.manager.private_key).decrypt(b64decode(enc_sym_key))
-
-        print self.public_key, "1"
 
     def append_msg_to_process(self, msg_json):
         '''
@@ -136,23 +133,12 @@ class Conversation:
         :param print_all: is the message part of the conversation history?
         :return: None
         '''
-
-        print msg_raw, "msg", type(msg_raw)
-        print msg_id, "id"
-        print owner_str, "user", type(owner_str)
-        print timestamp, "timest", type(timestamp)
-        print signature, "sig", type(signature)
-        print public_key, "pub", type(public_key)
-
-        #CRYPTO CHECKS
-        print "SIGNATURE PLS WORK", str(timestamp) + str(owner_str) + b64encode(msg_raw)
         if not VerifiySignedWithPublicKey(public_key, signature, str(timestamp) + str(owner_str) + str(b64encode(msg_raw))):
             print "the signature for this message did not verify correctly"
             return
 
         #timestamp?y
         decoded_msg = Decrypt(b64encode(msg_raw),self.symKey)
-        print "i dont think we get here but", decoded_msg, type(decoded_msg)
 
         # print message and add it to the list of printed messages
         self.print_message(
@@ -175,8 +161,6 @@ class Conversation:
         encMessage = Encrypt(msg_raw, self.symKey)
 
         message = timestamp + self.manager.user_name + encMessage
-        print "SIGNATURE IS MADE WITH THIS", message
-        print "OG ENC MESSAGE ", encMessage
         
         #sig
         signature = SignWithPrivateKey(self.manager.private_key, message)

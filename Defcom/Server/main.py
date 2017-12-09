@@ -315,11 +315,7 @@ class ConcreteConversationHandler(JsonHandler):
 			self.send_error(500)
 			return
 
-		print "dankasdfasdf", conversation
-
 		messages = conversation.get_messages_since(last_message_id)
-
-		print "messages = ",messages,"1"
 
 		# Transforming the messages list for the chat client
 		answer = []
@@ -336,7 +332,6 @@ class ConcreteConversationHandler(JsonHandler):
 
 		# send JSON reply
 		self.response = answer
-		print "response,",answer,"2"
 		self.write_json()
 
 	def post(self, conversation_id):
@@ -345,7 +340,6 @@ class ConcreteConversationHandler(JsonHandler):
 		(Conversation id sent in URL parameter, message sent in POST body az JSON.
 		:param conversation_id: the id of the conversation of the message
 		"""
-		print "dank---------------------------------"
 		# check user login
 		user_name = self.check_for_logged_in_user()
 		if not user_name:

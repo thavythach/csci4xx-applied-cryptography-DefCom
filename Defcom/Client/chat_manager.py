@@ -359,8 +359,6 @@ class ChatManager:
 			              signature=signature,
 			              public_key=public_key)
 			# Send the message
-
-			print "MESSAGE ABOUT TO TRAVEL TO THE SERVER", encMessage
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/" +
 								  str(self.current_conversation.get_id()),
 								  data=json.dumps(msg, cls=MessageEncoder))
@@ -431,8 +429,6 @@ class ChatManager:
 						# Include cooke
 						req.add_header("Cookie", self.cookie)
 						r = urllib2.urlopen(req)
-						swag = r.read()
-						print swag, "=-asdfasdfas"
 						try:
 							c_id = int(conversation_id)
 						except ValueError as e:
