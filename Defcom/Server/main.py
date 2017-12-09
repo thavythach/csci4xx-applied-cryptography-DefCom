@@ -154,7 +154,6 @@ class UsersHandler(JsonHandler):
 		print ("Sending available users")
 		users = cm.get_all_users()
 		
-		# print users
 
 		final_message = []
 		usernames = ""
@@ -195,8 +194,11 @@ class ConversationHandler(JsonHandler):
 
 		# transform the list of conversations
 		for conversation in conversations:
-			user_conversation = {'conversation_id': conversation.conversation_id,
-								 'participants': conversation.participants}
+			user_conversation = {
+				'conversation_id': conversation.conversation_id,
+				'participants': conversation.participants,
+				'enc_sym_key': conversation.get_enc_sym_key(user_name)
+			}
 			user_conversations.append(user_conversation)
 
 		self.write(json.dumps(user_conversations))

@@ -83,7 +83,7 @@ class ChatManager:
 			raise Exception("Not enough user!")
 
 		print "Creating new conversation..."
-		new_conversation = Conversation(participant_list)
+		new_conversation = Conversation(participant_list) # conversation is created with a list of participants with a list of encrypted symmetric keys
 		self.active_conversations.append(new_conversation)
 
 	def get_conversation(self, conversation_id):

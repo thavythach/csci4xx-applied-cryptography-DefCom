@@ -43,6 +43,7 @@ class ChatManager:
 		self.public_key = public_key  # public key of the current key
 		self.private_key = private_key # private key of the current user
 		self.certificate = certificate # certificate of the client ( MAY BE HARD CODED HERE... )
+		self.enc_sym_keys = None
 
 		self.get_msgs_thread_started = False  # message retrieval has not been started
 
@@ -63,12 +64,7 @@ class ChatManager:
 		})
 
 		# create JSON document of user public credentials to server (Authentication Protocol Part 1)
-		# returns timestamp, user_name, public_key, enc_sum_key, client_sig, certificate 
 		user_data = Protocols.AuthenticationProtocol( data=user_private_credentials )
-
-		#data = json.loads( user_data )
-		#print data
-		#for d in data: print data[d]
 		
 		try:
 			# Send user credentials to the server (Authentication Protocol: Request Phase)
@@ -137,7 +133,6 @@ class ChatManager:
 		if self.is_logged_in:
 			try:
 				users_msg = Protocols.MessageMaker(self.private_key, "requesting availible users")
-				# print users_msg,type(users_msg)
 				# Query server for users to invite
 				req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/users", data=users_msg)
 				req.add_header("Cookie", self.cookie)
@@ -155,9 +150,9 @@ class ChatManager:
 				}])			
 
 				responseOkay = Protocols.ResponseChecker( verf )
-				# print responseOkay
 				if responseOkay == "":
 					return		
+
 			except urllib2.HTTPError as e:
 				print ("Unable to create conversation, server returned HTTP", e.code, e.msg)
 				return
@@ -165,7 +160,6 @@ class ChatManager:
 				print ("Unable to create conversation, reason:", e.message)
 				return
 			
-
 			# Print potential participants
 			print ("Available users:")
 			for user in users:
@@ -175,12 +169,14 @@ class ChatManager:
 						print ("\t", user["user_name"])
 				except KeyError as e:
 					print ("Invalid JSON document: no user_name field")
+
 			# Waiting for user input specifying participants
 			participants = ""
 			try:
 				participants = raw_input("Please type the user names of participants separated by \";\": ")
 			except Exception:
 				pass
+			
 			participant_list = []
 			if participants != "":
 				# Create a list of participants
@@ -188,15 +184,16 @@ class ChatManager:
 
 			# Add current user to the participant list
 			participant_list.append(self.user_name)
+
 			#make new key and encrypt it with pub keys, then update response
 			usersAndTheirKeys, checkMessage = Protocols.symKeyGenerator( users, participant_list )
-			
+
+			# creates json msg
 			users_msg = Protocols.MessageMaker(self.private_key, checkMessage)
 			data = json.dumps({
 				"participants": json.dumps(usersAndTheirKeys),
 				"users_sig": users_msg
 			})
-
 
 			print ("Creating new conversation...")
 			try:
@@ -212,16 +209,15 @@ class ChatManager:
 				_rsp = json.loads( confirmation_response )[-1]
 				rsp = json.loads( confirmation_response )[:-1]
 
-				
+				# create json from confirm response
 				verf = json.dumps([{
 					'timestamp': _rsp['timestamp'],
 					'message': _rsp['message'],
 					'signature': _rsp['signature']	
 				}])
 				
-
+				# verify!
 				responseOkay = Protocols.ResponseChecker( verf  )
-				print responseOkay
 				if responseOkay == "":
 					return		
 
@@ -287,6 +283,7 @@ class ChatManager:
 				# Include Cookie
 				req.add_header("Cookie", self.cookie)
 				r = urllib2.urlopen(req)
+
 			except urllib2.HTTPError as e:
 				print ("Unable to download conversations, server returned HTTP", e.code, e.msg)
 				return
@@ -295,9 +292,11 @@ class ChatManager:
 				return
 			conversations = json.loads(r.read())
 			# Print conversations with IDs and participant lists
+			
 			for c in conversations:
 				conversation_id = c["conversation_id"]
-				print ("Conversation", conversation_id, "has the following members:")
+				conversation_enc_sym_key = c['enc_sym_key']
+				print ("Encrypted Symmetric Key (", conversation_enc_sym_key, ") for Conversation", conversation_id, "has the following members:")
 				for participant in c["participants"]:
 					print ("\t", participant)
 		else:
@@ -363,7 +362,6 @@ class ChatManager:
 			# Include cookie
 			req.add_header("Cookie", self.cookie)
 			r = urllib2.urlopen(req)
-			print r.read(), " asdfasdfasdfasdfasdfasdfasdf"
 		except urllib2.HTTPError as e:
 			print ("Unable to post message, server returned HTTP", e.code, e.msg)
 		except urllib2.URLError as e:
