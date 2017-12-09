@@ -43,7 +43,7 @@ class ChatManager:
 		self.public_key = public_key  # public key of the current key
 		self.private_key = private_key # private key of the current user
 		self.certificate = certificate # certificate of the client ( MAY BE HARD CODED HERE... )
-		self.enc_sym_keys = None
+		self.enc_sym_keys = {}
 
 		self.get_msgs_thread_started = False  # message retrieval has not been started
 
@@ -292,10 +292,11 @@ class ChatManager:
 				return
 			conversations = json.loads(r.read())
 			# Print conversations with IDs and participant lists
-			
+	
 			for c in conversations:
 				conversation_id = c["conversation_id"]
 				conversation_enc_sym_key = c['enc_sym_key']
+				self.enc_sym_keys[conversation_id]=conversation_enc_sym_key
 				print ("Encrypted Symmetric Key (", conversation_enc_sym_key, ") for Conversation", conversation_id, "has the following members:")
 				for participant in c["participants"]:
 					print ("\t", participant)
@@ -433,7 +434,7 @@ class ChatManager:
 						except ValueError as e:
 							print ("Entered conversation ID is not a number")
 							continue
-						self.current_conversation = Conversation(c_id, self)
+						self.current_conversation = Conversation(c_id, self.enc_sym_keys[c_id],self)
 						self.current_conversation.setup_conversation()
 					except urllib2.HTTPError as e:
 						print ("Unable to determine validity of conversation ID, server returned HTTP", e.code, e.msg)

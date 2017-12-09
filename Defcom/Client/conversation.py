@@ -9,7 +9,7 @@ class Conversation:
     '''
     Represents a conversation between participants
     '''
-    def __init__(self, c_id, manager):
+    def __init__(self, c_id, enc_sym_key, manager):
         '''
         Constructor
         :param c_id: ID of the conversation (integer)
@@ -29,7 +29,7 @@ class Conversation:
             target=self.process_all_messages) # message processing loop
         self.msg_process_loop.start()
         self.msg_process_loop_started = True
-        self.symKey = "qwertyuiopasdfghjklzxcvbnm123456"
+        self.symKey = enc_sym_key
         print self.public_key, "1"
 
     def append_msg_to_process(self, msg_json):
