@@ -145,13 +145,14 @@ class Conversation:
         print public_key, "pub", type(public_key)
 
         #CRYPTO CHECKS
-        print "SIGNATURE PLS WORK", str(timestamp) + str(owner_str) + msg_raw
-        if not VerifiySignedWithPublicKey(public_key, signature, str(timestamp) + str(owner_str) + msg_raw):
+        print "SIGNATURE PLS WORK", str(timestamp) + str(owner_str) + b64encode(msg_raw)
+        if not VerifiySignedWithPublicKey(public_key, signature, str(timestamp) + str(owner_str) + str(b64encode(msg_raw))):
             print "the signature for this message did not verify correctly"
             return
 
         #timestamp?y
-        decoded_msg = base64.decodestring(Decrypt(msg_raw,self.symKey))
+        decoded_msg = Decrypt(b64encode(msg_raw),self.symKey)
+        print "i dont think we get here but", decoded_msg, type(decoded_msg)
 
         # print message and add it to the list of printed messages
         self.print_message(

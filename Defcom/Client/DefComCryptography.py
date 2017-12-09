@@ -81,8 +81,11 @@ def Decrypt( e_buffer, keystring ):
 	# remove TLS padding
 	__buffer = _buffer[:len(_buffer)-ord(_buffer[-1])]
 	
+	print "this is just buffer", __buffer, type( __buffer)
+	print "this is decode utf8 buffer", __buffer.decode('utf-8'), type( __buffer.decode('utf-8'))
+
 	# return __buffer
-	return __buffer.decode('utf-8')
+	return __buffer
 
 def SignWithPrivateKey( private_key, msg ):
 	'''

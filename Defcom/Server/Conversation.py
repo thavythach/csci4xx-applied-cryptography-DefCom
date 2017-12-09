@@ -50,7 +50,7 @@ class Conversation:
         :param owner: the user id of the message owner
         :param content: the text content of the message
         """
-        print ("Adding new message for user: " + owner + " with content: " + base64.b64decode(message))
+        print ("Adding new message for user: " + owner + " with content: " + message)
         print "this is message reg not that^", message 
         if len(self.messages) == 0:
             new_id = 1
