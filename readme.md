@@ -2,7 +2,9 @@
 ## DEFCOM Dependencies 
 
 [global reqs]
-*`pip install virtualenv`
+* python 2.7
+* `pip install virtualenv`
+
 
 # Steps to Setup:
 * `virtualenv env`
