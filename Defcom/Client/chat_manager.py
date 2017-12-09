@@ -42,7 +42,7 @@ class ChatManager:
 		self.password = password  # password of the current user
 		self.public_key = public_key  # public key of the current key
 		self.private_key = private_key # private key of the current user
-		self.certificate = certificate # certificate of the client ( MAY BE HARD CODED HERE... )
+		self.certificate = certificate # certificate of the client 
 		self.enc_sym_keys = {}
 
 		self.get_msgs_thread_started = False  # message retrieval has not been started
@@ -142,6 +142,14 @@ class ChatManager:
 				#security check
 				_users = json.loads(users)[-1]
 				users = json.loads(users)[:-1]
+
+				usernames = ""
+				for user in users:
+					usernames += user["user_name"] + user["public_key"]
+
+				#checks that the data is the same as the representation
+				if usernames != _users['message']:
+					return
 				
 				verf = json.dumps([{
 					'timestamp': _users['timestamp'],
@@ -149,6 +157,7 @@ class ChatManager:
 					'signature': _users['signature']	
 				}])			
 
+				#checks to make sure the representation has not been modiified
 				responseOkay = Protocols.ResponseChecker( verf )
 				if responseOkay == "":
 					return		
@@ -188,11 +197,11 @@ class ChatManager:
 			#make new key and encrypt it with pub keys, then update response
 			usersAndTheirKeys, checkMessage = Protocols.symKeyGenerator( users, participant_list )
 
+			users_sig = Protocols.MessageMaker(self.private_key, checkMessage)
 			# creates json msg
-			users_msg = Protocols.MessageMaker(self.private_key, checkMessage)
 			data = json.dumps({
 				"participants": json.dumps(usersAndTheirKeys),
-				"users_sig": users_msg
+				"users_sig": users_sig
 			})
 
 			print ("Creating new conversation...")
@@ -297,7 +306,7 @@ class ChatManager:
 				conversation_id = c["conversation_id"]
 				conversation_enc_sym_key = c['enc_sym_key']
 				self.enc_sym_keys[conversation_id]=conversation_enc_sym_key
-				print ("Encrypted Symmetric Key (", conversation_enc_sym_key, ") for Conversation", conversation_id, "has the following members:")
+				print ("Conversation", conversation_id, "has the following members:")
 				for participant in c["participants"]:
 					print ("\t", participant)
 		else:
