@@ -49,6 +49,15 @@ class Message():
         :return: string
         '''
         return self.content
+    
+    def get_timestamp(self):
+        return self.timestamp
+    
+    def get_signature(self):
+        return self.signature
+
+    def get_public_key(self):
+        return self.public_key
 
 class MessageEncoder(JSONEncoder):
     '''
@@ -61,4 +70,4 @@ class MessageEncoder(JSONEncoder):
         :return: dict that can be serialized into JSON
         '''
         assert isinstance(o, Message)
-        return {"content" : o.get_content()}
+        return {"content" : o.get_content(),"timestamp":o.get_timestamp(),"signature":o.get_signature(),"public_key":o.get_public_key()}
