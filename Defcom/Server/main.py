@@ -359,15 +359,17 @@ class ConcreteConversationHandler(JsonHandler):
 			self.send_error(500)
 			return
 
+		print "WE HAVE ARRIVED AT THE SERVER", self.request.arguments['content']
 		# get the posted message
 		try:
 			# owner should be included as well!
 			message = self.request.arguments['content']
 			timestamp = self.request.arguments['timestamp']
 			signature = self.request.arguments['signature']
-			pub_key = self.request.arguments['public_key']
+			public_key = self.request.arguments['public_key']
 
-			conversation.add_message(user_name, message)
+			print "before add message"
+			conversation.add_message(user_name, timestamp, message, signature, public_key)
 		except KeyError as e:
 			print("KeyError! Message content was not readable!", e.message)
 			self.send_error(400, message=e.message)

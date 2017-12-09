@@ -359,6 +359,8 @@ class ChatManager:
 			              signature=signature,
 			              public_key=public_key)
 			# Send the message
+
+			print "MESSAGE ABOUT TO TRAVEL TO THE SERVER", encMessage
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/" +
 								  str(self.current_conversation.get_id()),
 								  data=json.dumps(msg, cls=MessageEncoder))

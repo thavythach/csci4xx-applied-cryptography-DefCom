@@ -80,7 +80,7 @@ class Conversation:
                 owner_str = ""
                 try:
                     # Get raw data of the message from JSON document representing the message
-                    msg_raw = base64.decodestring(current_msg["content"])
+                    msg_raw = b64decode(current_msg["content"])
                     # Base64 decode message
                     msg_id = int(current_msg["message_id"])
                     # Get the name of the user who sent the message
@@ -137,8 +137,16 @@ class Conversation:
         :return: None
         '''
 
+        print msg_raw, "msg", type(msg_raw)
+        print msg_id, "id"
+        print owner_str, "user", type(owner_str)
+        print timestamp, "timest", type(timestamp)
+        print signature, "sig", type(signature)
+        print public_key, "pub", type(public_key)
+
         #CRYPTO CHECKS
-        if not VerifiySignedWithPublicKey(public_key, signature, timestamp + owner_str + msg_raw):
+        print "SIGNATURE PLS WORK", str(timestamp) + str(owner_str) + msg_raw
+        if not VerifiySignedWithPublicKey(public_key, signature, str(timestamp) + str(owner_str) + msg_raw):
             print "the signature for this message did not verify correctly"
             return
 
@@ -165,7 +173,9 @@ class Conversation:
         #encrypt message
         encMessage = Encrypt(msg_raw, self.symKey)
 
-        message = timestamp + self.manager.user_name + msg_raw
+        message = timestamp + self.manager.user_name + encMessage
+        print "SIGNATURE IS MADE WITH THIS", message
+        print "OG ENC MESSAGE ", encMessage
         
         #sig
         signature = SignWithPrivateKey(self.manager.private_key, message)
