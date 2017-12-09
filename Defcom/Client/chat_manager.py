@@ -327,7 +327,6 @@ class ChatManager:
 					r = urllib2.urlopen(req)
 					msgs = json.loads(r.read())
 
-					print msgs
 				except urllib2.HTTPError as e:
 					print ("Unable to download messages, server returned HTTP", e.code, e.msg)
 					self.get_msgs_thread_started = False

@@ -137,7 +137,7 @@ class UsersHandler(JsonHandler):
 		# check user login
 		user_name = self.check_for_logged_in_user()
 		if not user_name:
-			return	
+			return  
 		
 		for Users in RegisteredUsers:
 			if Users['user_name'] == user_name:
@@ -154,7 +154,6 @@ class UsersHandler(JsonHandler):
 		print ("Sending available users")
 		users = cm.get_all_users()
 		
-
 		final_message = []
 		usernames = ""
 		for user in users:
@@ -248,7 +247,7 @@ class ConversationCreateHandler(JsonHandler):
 			if Protocols.ResponseChecker(timestamp,message,signature,pub_key) == "":
 				return
 
-			cm.create_conversation(participants)			
+			cm.create_conversation(participants)            
 
 			final_message = []
 			participants_strings = ""
@@ -296,9 +295,9 @@ class ConcreteConversationHandler(JsonHandler):
 			return
 		
 		# for Users in RegisteredUsers:
-		# 		if Users['user_name'] == user_name:
-		# 		pub_key = Users['public_key']
-		# 		break
+		#       if Users['user_name'] == user_name:
+		#       pub_key = Users['public_key']
+		#       break
 
 		# timestamp = self.request.arguments['timestamp']
 		# message = self.request.arguments['message']
@@ -320,6 +319,8 @@ class ConcreteConversationHandler(JsonHandler):
 
 		messages = conversation.get_messages_since(last_message_id)
 
+		print "messages = ",messages,"1"
+
 		# Transforming the messages list for the chat client
 		answer = []
 		for message in messages:
@@ -330,11 +331,12 @@ class ConcreteConversationHandler(JsonHandler):
 			new_answer_item['timestamp'] = message.timestamp
 			new_answer_item['signature'] = message.signature
 			new_answer_item['public_key'] = message.public_key
-			new_answer_item['enc_sym_key'] = conversation.encSymKeys[user_name]	
+			new_answer_item['enc_sym_key'] = conversation.encSymKeys[user_name] 
 			answer.append(new_answer_item)
 
 		# send JSON reply
 		self.response = answer
+		print "response,",answer,"2"
 		self.write_json()
 
 	def post(self, conversation_id):

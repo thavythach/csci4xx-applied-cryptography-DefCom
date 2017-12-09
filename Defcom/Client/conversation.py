@@ -1,7 +1,8 @@
 from DefComCryptography import Encrypt, Decrypt, SignWithPrivateKey, VerifiySignedWithPublicKey
+from Crypto.PublicKey import RSA
 from datetime import datetime
 from message import Message
-import base64
+from base64 import b64encode, b64decode
 from time import sleep
 from threading import Thread
 
@@ -29,7 +30,9 @@ class Conversation:
             target=self.process_all_messages) # message processing loop
         self.msg_process_loop.start()
         self.msg_process_loop_started = True
-        self.symKey = enc_sym_key
+
+        self.symKey = RSA.importKey(self.manager.private_key).decrypt(b64decode(enc_sym_key))
+
         print self.public_key, "1"
 
     def append_msg_to_process(self, msg_json):
@@ -139,8 +142,7 @@ class Conversation:
             print "the signature for this message did not verify correctly"
             return
 
-        #timestamp?
-
+        #timestamp?y
         decoded_msg = base64.decodestring(Decrypt(msg_raw,self.symKey))
 
         # print message and add it to the list of printed messages
@@ -168,13 +170,8 @@ class Conversation:
         #sig
         signature = SignWithPrivateKey(self.manager.private_key, message)
 
-        print self.manager.private_key, "2"
-        print self.manager.public_key, "3"
-        print self.public_key, "4"
-
         # if the message has been typed into the console, record it, so it is never printed again during chatting
         if originates_from_console == True:
-            print self.public_key, "5"
             # message is already seen on the console
             m = Message(
                 message_id=timestamp,
@@ -184,15 +181,14 @@ class Conversation:
                 signature=signature,
                 public_key=self.public_key
             )
-            print "FUCK"
             self.printed_messages.append(m)
 
         # process outgoing message here
 		# example is base64 encoding, extend this with any crypto processing of your protocol
-        encoded_msg = base64.encodestring(msg_raw)
+        #encoded_msg = b64encode(msg_raw)
 
         # post the message to the conversation
-        self.manager.post_message_to_conversation(encoded_msg)
+        self.manager.post_message_to_conversation(m)
 
     def print_message(self, msg_raw, owner_str):
         '''

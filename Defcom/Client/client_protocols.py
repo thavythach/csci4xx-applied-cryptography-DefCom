@@ -39,7 +39,6 @@ def ResponseChecker( response ):
 
 	'''
 
-
 	json_rsp = json.loads(response)[0]
 
 	now_timestamp =  datetime.now().strftime("%Y-%m-%d %H:%M:%S")

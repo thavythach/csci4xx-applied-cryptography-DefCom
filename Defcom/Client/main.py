@@ -11,49 +11,49 @@ import json
 
 
 def main():
-    # Check the existence of the user credential configuration file
-    if len(sys.argv) < 2:
-        print ("Specify configuration file from which user credentials are to be read!")
-        return
-    if os.path.exists(sys.argv[1]) == False:
-        print ("Specified configuration file does not exists!")
-        return
-    credentials = {
-        "user_name" : "",
-        "password"  : "",
-        "public_key": "",
-        "private_key": "",
-        "certificate": ""
-    }
-    with open(sys.argv[1]) as private_credentials_file:
-        # Load credentials
-        credentials = json.load( private_credentials_file )
-    
-    try:
-        # Initialize chat client with the provided credentials
-        c = ChatManager(user_name=credentials["user_name"],
-                        password=credentials["password"],
-                        public_key=credentials["public_key"],
-                        private_key=credentials["private_key"],
-                        certificate=credentials["certificate"]
-        )
-    except KeyError:
-        # In case the JSON file is malformed
-        print ("Unable to get user credentials from JSON file")
-        return
-    
+	# Check the existence of the user credential configuration file
+	if len(sys.argv) < 2:
+		print ("Specify configuration file from which user credentials are to be read!")
+		return
+	if os.path.exists(sys.argv[1]) == False:
+		print ("Specified configuration file does not exists!")
+		return
+	credentials = {
+		"user_name" : "",
+		"password"  : "",
+		"public_key": "",
+		"private_key": "",
+		"certificate": ""
+	}
+	with open(sys.argv[1]) as private_credentials_file:
+		# Load credentials
+		credentials = json.load( private_credentials_file )
 
-    # Register function of menu handling to specific signals from the OS
-    try:
-        signal.signal(signal.SIGBREAK, c.enter_menu) # for Windows: CRTL+BREAK
-    except AttributeError:
-        try:
-            signal.signal(signal.SIGTSTP, c.enter_menu) # for Mac and Linux: CTRL+z
-        except AttributeError:
-            print ("No signal could be registered for entering the menu")
-            return
-    c.run()
+	try:
+		# Initialize chat client with the provided credentials
+		c = ChatManager(user_name=credentials["user_name"],
+						password=credentials["password"],
+						public_key=credentials["public_key"],
+						private_key=credentials["private_key"],
+						certificate=credentials["certificate"]
+		)
+	except KeyError:
+		# In case the JSON file is malformed
+		print ("Unable to get user credentials from JSON file")
+		return
+	
+
+	# Register function of menu handling to specific signals from the OS
+	try:
+		signal.signal(signal.SIGBREAK, c.enter_menu) # for Windows: CRTL+BREAK
+	except AttributeError:
+		try:
+			signal.signal(signal.SIGTSTP, c.enter_menu) # for Mac and Linux: CTRL+z
+		except AttributeError:
+			print ("No signal could be registered for entering the menu")
+			return
+	c.run()
 
 
 if __name__ == '__main__':
-    main()
+	main()

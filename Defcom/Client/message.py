@@ -7,15 +7,21 @@ class Message():
     Represents a single message in a conversation
     '''
 
-    def __init__(self, owner_name="", content=""):
+    def __init__(self, message_id="", owner_name="", content="",timestamp="",signature="",public_key=""):
         '''
         Constructor
         :param owner_name: user name of the user who created the message
         :param content: the raw message as a string
         :return: instance
         '''
-        self.content = content
+
+        self.message_id = message_id
         self.owner = User(owner_name)
+        self.content = content
+        self.timestamp=timestamp
+        self.signature=signature
+        self.public_key=public_key
+
 
     def __str__(self):
         '''
