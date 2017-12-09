@@ -341,7 +341,7 @@ class ChatManager:
 				has_requested_messages = True
 			sleep(MSG_QUERY_INTERVAL) # Query for new messages every X seconds
 
-	def post_message_to_conversation(self, msg_raw):
+	def post_message_to_conversation(self,timestamp,encMessage,signature,public_key):
 		'''
 		Posts a single message to the current conversation on the server
 		:param msg_raw: the raw message to be sent
@@ -353,8 +353,11 @@ class ChatManager:
 			sleep(0.01)
 		try:
 			# Process outgoing message
-			msg = Message(content=base64.encodestring(msg_raw),
-						  owner_name=self.user_name)
+			msg = Message(owner_name=self.user_name,
+			              timestamp=timestamp,
+			              content=encMessage,
+			              signature=signature,
+			              public_key=public_key)
 			# Send the message
 			req = urllib2.Request("http://" + SERVER + ":" + SERVER_PORT + "/conversations/" +
 								  str(self.current_conversation.get_id()),

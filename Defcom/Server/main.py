@@ -363,6 +363,13 @@ class ConcreteConversationHandler(JsonHandler):
 		try:
 			# owner should be included as well!
 			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			message = self.request.arguments['content']
+			
 			conversation.add_message(user_name, message)
 		except KeyError as e:
 			print("KeyError! Message content was not readable!", e.message)

@@ -174,7 +174,6 @@ class Conversation:
         if originates_from_console == True:
             # message is already seen on the console
             m = Message(
-                message_id=timestamp,
                 owner_name=self.manager.user_name,
                 timestamp=timestamp,
                 content=encMessage,
@@ -188,7 +187,7 @@ class Conversation:
         #encoded_msg = b64encode(msg_raw)
 
         # post the message to the conversation
-        self.manager.post_message_to_conversation(m)
+        self.manager.post_message_to_conversation(timestamp,encMessage,signature,self.public_key)
 
     def print_message(self, msg_raw, owner_str):
         '''
